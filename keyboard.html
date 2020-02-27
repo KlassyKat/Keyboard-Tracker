@@ -4,11 +4,16 @@
 <head>
     <title>Keyboard Tracker</title>
     <style>
+        @import url(https://fonts.googleapis.com/css?family=Montserrat:100,100italic,200,200italic,300,300italic,regular,italic,500,500italic,600,600italic,700,700italic,800,800italic,900,900italic);
+        :root {
+            --button-active-color: aqua;
+        }
+
         html,
         body {
             margin: 0;
             padding: 0;
-            background-color: grey;
+            background-color: rgb(0, 255, 0);
             -webkit-user-select: none;
             /* Chrome all / Safari all */
             -moz-user-select: none;
@@ -18,6 +23,28 @@
             user-select: none;
         }
 
+        .control-bar {
+            display: flex;
+            background-color: rgb(37, 37, 37);
+            -webkit-app-region: drag;
+        }
+
+        .control-bar > h2 {
+            margin: 5.5px;
+            padding: 0;
+            color: rgb(199, 73, 193);
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .control-bar > h2 > span {
+            color: white;
+            font-weight: 300;
+        }
+
+        .close-window {
+            float: right;
+            width: 40px;
+        }
 
         .container {
             display: grid;
@@ -92,42 +119,30 @@
             transform-origin: 459.952 275.539;
         }
 
-        /*
-        .LMB {
-            width: 200px;
-        }
-
-        .RMB {
-            width: 200px;
-        }
-
-        .MMB {
-            position: absolute;
-            width: 60px;
-            top: 120px;
-            right: 664px;
-        }
-
-        #mouse-bottom {
-            position: absolute;
-            width: 334px;
-            top: 250px;
-            right: 526px;
-        }  */
-
 
         /* Class Binding */
         .pressed {
-            fill: aqua;
+            fill: var(--button-active-color);
         }
 
-        text {
-            fill: white !important;
+        svg > path{
+            stroke: black;
         }
+
+        svg text {
+            fill: blue;
+        }
+
+        /* text {
+            fill: white !important;
+        } */
     </style>
 </head>
 
-<body>
+<body onload="getStoredColors()">
+    <nav class="control-bar"><h2>Keyboard<span>Tracker</span></h2>
+    <span class="close-window"><svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" clip-rule="evenodd" stroke-linejoin="round" stroke-miterlimit="2"><path d="M140.5 40.499l19 19.002L119 100l40.5 40.498-19 19.002L100 119l-40.5 40.5-19-19.002L81 100.001l-40.5-40.5 19-19.002 40.5 40.5 40.5-40.5z" fill="#fff"/></svg></span>
+    </nav>
     <div class="container">
         <div class="space-more">
             <svg viewBox="0 0 29 24" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" clip-rule="evenodd"
@@ -294,12 +309,12 @@
                     <path
                         d="M77.664.5H.5l10.572 51.85a6.077 6.077 0 0 0 5.954 4.862h44.113a6.077 6.077 0 0 0 5.954-4.863L77.664.5z"
                         fill="none" stroke="#fff" /></svg>
-                <svg id="directional-area" viewBox="0 0 47 47" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd"
+                <!-- <svg id="directional-area" viewBox="0 0 47 47" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd"
                     clip-rule="evenodd" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="1.5">
                     <circle cx="459.952" cy="275.539" r="19.442" fill="none" stroke="#fff" stroke-width=".8"
                         transform="translate(-517.938 -300.913) scale(1.17684)" />
                     <circle id="mouse-tracker" cx="459.952" cy="275.539" r="2.719" fill="#fff" transform="translate(-517.938 -300.913) scale(1.17684)" />
-                    </svg>
+                    </svg> -->
             </div>
         </div>
     </div>
@@ -309,6 +324,7 @@
 
 <script>
     const electron = require('electron');
+    const { ipcRenderer } = electron;
     'use strict';
     const iohook = require('iohook');
 
@@ -316,7 +332,6 @@
     iohook.on('keydown', pushKey);
 
     function pushKey(e) {
-        console.log(e);
         let key = document.getElementById(e.keycode);
         key.classList.add("pressed");
     }
@@ -329,7 +344,6 @@
     }
 
     iohook.on('mousedown', (e) => {
-        console.log(e);
         if (e.button == 1) {
             document.getElementById('LMB').classList.add("pressed");
         } else if (e.button == 2) {
@@ -347,25 +361,17 @@
         } else {
             document.getElementById('MMB').classList.remove("pressed");
         }
+    })
 
-        console.log(mouseTracker)
+    iohook.start();
+
+    ipcRenderer.on('color-pick', function() {
+        getStoredColors();
     })
 
 
-    let pX = 0;
-    let pY = 0;
-    let angle = 0;
-    let mouseTracker = document.getElementById("mouse-tracker");
-    let mouseTrackerStartX = mouseTracker.cx.baseVal.value;
-    let mouseTrackerStartY = mouseTracker.cy.baseVal.value;
-    iohook.on('mousemove', e => {
-        angle = Math.atan2(e.y - pY, e.x - pX);
-        console.log(angle)
-        mouseTracker.cx.baseVal.value = mouseTrackerStartX + 16 * Math.cos(angle);
-        mouseTracker.cy.baseVal.value = mouseTrackerStartY + 16 * Math.sin(angle);
-        pY = e.y;
-        pX = e.x;
-    }) 
-
-    iohook.start();
+    function getStoredColors() {
+        let root = document.documentElement;
+        root.style.setProperty('--button-active-color', localStorage.getItem('strokeColor'));
+    }
 </script>

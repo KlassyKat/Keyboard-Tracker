@@ -9,6 +9,10 @@ const {
     ipcMain
 } = electron;
 let mainWindow;
+let colorPickWindow;
+
+//Disable hardware acceleration to allow for capture in obs
+app.disableHardwareAcceleration();
 
 //Listen for app to ready
 app.on('ready', function () {
@@ -16,7 +20,9 @@ app.on('ready', function () {
     mainWindow = new BrowserWindow({
         webPreferences: {
             nodeIntegration: true
-        }
+        },
+        frame: false,
+        icon: './assets/icons/win/icon.ico'
     });
     //Load html in
     mainWindow.loadURL(url.format({
@@ -41,7 +47,26 @@ app.on('ready', function () {
 const mainMenuTemplate = [{
     label: 'File',
     submenu: [{
-            label: 'Stroke Color'
+            label: 'Stroke Color',
+            click() {
+                colorPickWindow = new BrowserWindow({
+                    webPreferences: {
+                        nodeIntegration: true
+                    },
+                    frame: false,
+                    width: 600,
+                    height: 500,
+                    resizable: false
+                });
+                colorPickWindow.loadURL(url.format({
+                    pathname: path.join(__dirname, 'colorpicker.html'),
+                    protocol: 'file:',
+                    slashes: true
+                }));
+                colorPickWindow.on('closed', function () {
+                    colorPickWindow = null;
+                });
+            }
         },
         {
             label: 'Highlight Color'
@@ -78,3 +103,9 @@ if (process.env.NODE_ENV !== 'production') {
         ]
     })
 }
+
+//Color Picking
+ipcMain.on('pick-color', function() {
+    colorPickWindow.close();
+    mainWindow.webContents.send('color-pick');
+})

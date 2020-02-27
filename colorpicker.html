@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Color Picker</title>
+    <style>
+        body {
+            background-color: grey;
+            padding: 10px;
+            margin: 0;
+        }
+
+        .container {
+            display: flex;
+        }
+
+        .menu {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        button {
+            margin: 10px;
+            width: 80px;
+            height: 40px;
+            border: none;
+            border-radius: 10px;
+            color: white;
+            background-color: rgb(34, 34, 34);
+        }
+
+        .selector-container {
+            display: flex;
+            flex-direction: column;
+        }
+
+        #hue-picker {
+            width: 400px;
+            height: 40px;
+            padding-bottom: 10px;
+        }
+
+        #color-picker-canvas {
+            width: 400px;
+            height: 400px;
+        }
+
+        #selected-color {
+            width: 100px;
+            height: 60px;
+            border: 2px solid rgb(255, 255, 255);
+            border-radius: 10px;
+            margin: 10px 10px;
+            background-color: hsl(180, 100%, 50%);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="selector-container">
+            <canvas id="hue-picker"></canvas>
+            <canvas id="color-picker-canvas"></canvas>
+        </div>
+        <div class="menu">
+            <span id="selected-color">
+            </span>
+            <button onclick="chooseColor()">Ok</button>
+        </div>
+    </div>
+</body>
+
+</html>
+
+<script>
+    let x = 0;
+    let y = 0;
+    let hueChoice = 0;
+    let saturationChoice = 0;
+    let ligntnessChoice = 0;
+    let colorChoice;
+    let colorPreview = document.getElementById('selected-color');
+    //Hue Selection: The Slider
+    var hueCanvas = document.getElementById("hue-picker");
+    var ctxHue = hueCanvas.getContext("2d");
+    hueCanvas.width = 360;
+    hueCanvas.height = 10;
+    ctxHue.fillStyle = "blue";
+    ctxHue.fillRect(0, 0, hueCanvas.width, hueCanvas.height);
+    for (hue = 0; hue <= 360; hue++) {
+        ctxHue.beginPath();
+        ctxHue.rect(x, 0, 1, 10);
+        ctxHue.fillStyle = "hsl(" + hue + "," + "100%," + "50%)";
+        ctxHue.fill();
+        x++;
+    }
+
+
+    //Saturation Lightness Selection: The Box
+    var canvas = document.getElementById("color-picker-canvas");
+    var ctx = canvas.getContext("2d");
+    canvas.width = 100;
+    canvas.height = 100;
+    ctx.fillStyle = "blue";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    //Create Color Picker
+    drawColorPicker(0);
+    function drawColorPicker(hue) {
+        x = 0;
+        for (let saturation = 0; saturation <= 100; saturation++) {
+            for (let lightness = 100; lightness >= 0; lightness--) {
+                // console.log("hsl(" + hue + "," + saturation + "%," + lightness + "%)");
+                // console.log(x + "," + y)
+                ctx.beginPath();
+                ctx.rect(x, y, 1, 1);
+                ctx.fillStyle = "hsl(" + hue + "," + saturation + "%," + lightness + "%)";
+                ctx.fill();
+                y++;
+            }
+            y = 0;
+            x++;
+        }
+    }
+
+    //On hue select
+    hueCanvas.addEventListener("click", e => {
+        hueCanvasPageWidth = hueCanvas.getBoundingClientRect().width;
+        hueCanvasCalcWidth = hueCanvas.width;
+        let hueCanvasRatio = hueCanvasCalcWidth / hueCanvasPageWidth;
+        hueChoice = (e.x) * hueCanvasRatio;
+        drawColorPicker(hueChoice);
+    })
+
+    //On color select
+    canvas.addEventListener("click", e => {
+        canvasPageWidth = canvas.getBoundingClientRect().width;
+        canvasCalcWidth = canvas.width;
+        let canvasRatio = canvasCalcWidth / canvasPageWidth;
+        saturationChoice = (e.x) * canvasRatio;
+        ligntnessChoice = ((e.y) - canvas.getBoundingClientRect().y) * canvasRatio;
+        hueChoice = Math.ceil(hueChoice);
+        saturationChoice = Math.ceil(saturationChoice);
+        ligntnessChoice = Math.ceil(ligntnessChoice);
+        ligntnessChoice = Math.abs(ligntnessChoice - 100);
+        colorChoice = 'hsl(' + hueChoice + ',' + saturationChoice + '%,' + ligntnessChoice + '%)'
+        colorPreview.style.backgroundColor = colorChoice;
+    });
+
+    const electron = require('electron');
+    const { ipcRenderer } = electron;
+    function chooseColor() {
+        localStorage.setItem('strokeColor', colorChoice);
+        ipcRenderer.send('pick-color', colorChoice);
+    }
+</script>
