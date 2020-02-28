@@ -55,7 +55,7 @@ const mainMenuTemplate = [{
                     },
                     frame: false,
                     width: 600,
-                    height: 500,
+                    height: 590,
                     resizable: false
                 });
                 colorPickWindow.loadURL(url.format({
@@ -66,7 +66,8 @@ const mainMenuTemplate = [{
                 colorPickWindow.on('closed', function () {
                     colorPickWindow = null;
                 });
-            }
+            },
+            accelerator: 'CmdOrCtrl+E'
         },
         {
             label: 'Highlight Color'
@@ -104,8 +105,57 @@ if (process.env.NODE_ENV !== 'production') {
     })
 }
 
+//Open Color Window
+ipcMain.on('open-colors',() => {
+    colorPickWindow = new BrowserWindow({
+        webPreferences: {
+            nodeIntegration: true
+        },
+        frame: false,
+        width: 1200,
+        height: 590,
+        resizable: false
+    });
+    colorPickWindow.loadURL(url.format({
+        pathname: path.join(__dirname, 'colorpicker.html'),
+        protocol: 'file:',
+        slashes: true
+    }));
+    colorPickWindow.on('closed', function () {
+        colorPickWindow = null;
+    });
+})
+
+//Open Settings Window
+ipcMain.on('open-settings',() => {
+    settingsWindow = new BrowserWindow({
+        webPreferences: {
+            nodeIntegration: true
+        },
+        frame: false,
+        width: 600,
+        height: 590,
+        resizable: false
+    });
+    settingsWindow.loadURL(url.format({
+        pathname: path.join(__dirname, 'settings.html'),
+        protocol: 'file:',
+        slashes: true
+    }));
+    settingsWindow.on('closed', function () {
+        settingsWindow = null;
+    });
+})
+
 //Color Picking
 ipcMain.on('pick-color', function() {
-    colorPickWindow.close();
     mainWindow.webContents.send('color-pick');
 })
+ipcMain.on('close-color-window', function() {
+    colorPickWindow.close();
+})
+
+//Close Main Window
+ipcMain.on('close-main-window', function() {
+    mainWindow.close();
+});

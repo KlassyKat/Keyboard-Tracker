@@ -6,7 +6,9 @@
     <style>
         @import url(https://fonts.googleapis.com/css?family=Montserrat:100,100italic,200,200italic,300,300italic,regular,italic,500,500italic,600,600italic,700,700italic,800,800italic,900,900italic);
         :root {
-            --button-active-color: aqua;
+            --stroke-color: white;
+            --fill-color: black;
+            --font-color: white;
         }
 
         html,
@@ -24,7 +26,8 @@
         }
 
         .control-bar {
-            display: flex;
+            display: grid;
+            grid-template-columns: auto 1fr 40px;
             background-color: rgb(37, 37, 37);
             -webkit-app-region: drag;
         }
@@ -41,9 +44,34 @@
             font-weight: 300;
         }
 
+        .settings-wrapper {
+            background-color: #444;
+        }
+
+        .settings-btn {
+            padding: 5px;
+            margin: 4px;
+            font-size: 1.2em;
+            font-weight: 600;
+            font-family: 'Montserrat', sans-serif;
+            color: white;
+            background-color: #202020;
+            border: 2px outset white;
+            border-radius: 5px;
+        }
+
+        .settings-btn:hover {
+            background-color: #111;
+        }
+
         .close-window {
-            float: right;
+            grid-column: 3;
             width: 40px;
+            -webkit-app-region: no-drag;
+        }
+
+        .close-window:hover {
+            background-color: rgb(8, 8, 8);
         }
 
         .container {
@@ -122,27 +150,27 @@
 
         /* Class Binding */
         .pressed {
-            fill: var(--button-active-color);
+            fill: var(--fill-color);
         }
 
         svg > path{
-            stroke: black;
+            stroke: var(--stroke-color);
         }
 
         svg text {
-            fill: blue;
+            fill: var(--font-color);
         }
-
-        /* text {
-            fill: white !important;
-        } */
     </style>
 </head>
 
 <body onload="getStoredColors()">
     <nav class="control-bar"><h2>Keyboard<span>Tracker</span></h2>
-    <span class="close-window"><svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" clip-rule="evenodd" stroke-linejoin="round" stroke-miterlimit="2"><path d="M140.5 40.499l19 19.002L119 100l40.5 40.498-19 19.002L100 119l-40.5 40.5-19-19.002L81 100.001l-40.5-40.5 19-19.002 40.5 40.5 40.5-40.5z" fill="#fff"/></svg></span>
+        <span onclick="closeWindow()" class="close-window"><svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" clip-rule="evenodd" stroke-linejoin="round" stroke-miterlimit="2"><path d="M140.5 40.499l19 19.002L119 100l40.5 40.498-19 19.002L100 119l-40.5 40.5-19-19.002L81 100.001l-40.5-40.5 19-19.002 40.5 40.5 40.5-40.5z" fill="#fff"/></svg></span>
     </nav>
+    <div class="settings-wrapper">
+        <button onclick="openColors()" class="settings-btn">Colors</button>
+        <button onclick="openSettings()" class="settings-btn">Settings</button>
+    </div>
     <div class="container">
         <div class="space-more">
             <svg viewBox="0 0 29 24" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" clip-rule="evenodd"
@@ -372,6 +400,20 @@
 
     function getStoredColors() {
         let root = document.documentElement;
-        root.style.setProperty('--button-active-color', localStorage.getItem('strokeColor'));
+        root.style.setProperty('--stroke-color', localStorage.getItem('strokeColor'));
+        root.style.setProperty('--fill-color', localStorage.getItem('fillColor'));
+        root.style.setProperty('--font-color', localStorage.getItem('fontColor'));
+    }
+
+    function openColors() {
+        ipcRenderer.send('open-colors');
+    }
+
+    function openSettings() {
+        ipcRenderer.send('open-settings');
+    }
+
+    function closeWindow() {
+        ipcRenderer.send('close-main-window')
     }
 </script>

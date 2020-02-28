@@ -4,30 +4,33 @@
 <head>
     <title>Color Picker</title>
     <style>
+        @import url(https://fonts.googleapis.com/css?family=Montserrat:100,100italic,200,200italic,300,300italic,regular,italic,500,500italic,600,600italic,700,700italic,800,800italic,900,900italic);
+
         body {
             background-color: grey;
-            padding: 10px;
+            padding: 0;
             margin: 0;
         }
 
-        .container {
+        .header-bar {
             display: flex;
+            width: 100%;
+            background-color: #252525;
+            -webkit-app-region: drag;
         }
 
-        .menu {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        button {
-            margin: 10px;
-            width: 80px;
-            height: 40px;
-            border: none;
-            border-radius: 10px;
+        .header-bar>h2 {
+            margin: 5.5px;
+            padding: 0;
+            font-family: 'Montserrat', sans-serif;
             color: white;
-            background-color: rgb(34, 34, 34);
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px;
+            padding: 10px;
         }
 
         .selector-container {
@@ -35,38 +38,72 @@
             flex-direction: column;
         }
 
-        #hue-picker {
-            width: 400px;
-            height: 40px;
+        .hue-picker {
+            width: 100%;
             padding-bottom: 10px;
         }
 
-        #color-picker-canvas {
-            width: 400px;
-            height: 400px;
+        .color-picker-canvas {
+            width: 100%;
         }
 
-        #selected-color {
-            width: 100px;
-            height: 60px;
-            border: 2px solid rgb(255, 255, 255);
-            border-radius: 10px;
-            margin: 10px 10px;
-            background-color: hsl(180, 100%, 50%);
+        h3  {
+            font-family: 'Montserrat', sans-serif;
+            margin: 0;
+        }
+
+        .color-preview {
+            background-color: black;
+            width: 20%;
+            height: 30px;
+            margin: 5px 0;
+            border-radius: 5px;
+            border: 2px solid white;
+        }
+
+        .submit-btn {
+            width: 30%;
+            background-color: #222;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            font-size: 1.2em;
+            font-family: 'Montserrat';
+        }
+
+        .submit-btn:hover {
+            cursor: pointer;
+            background-color: #151515;
         }
     </style>
 </head>
 
 <body>
+    <nav class="header-bar">
+        <h2>Colors</h2>
+    </nav>
     <div class="container">
         <div class="selector-container">
-            <canvas id="hue-picker"></canvas>
-            <canvas id="color-picker-canvas"></canvas>
+            <h3>Stroke Color</h3>
+            <canvas class="hue-picker" id="stroke-hue-picker"></canvas>
+            <canvas class="color-picker-canvas" id="stroke-color-picker-canvas"></canvas>
+            <span class="color-preview" id="stroke-color-preview"></span>
         </div>
-        <div class="menu">
-            <span id="selected-color">
-            </span>
-            <button onclick="chooseColor()">Ok</button>
+        <div class="selector-container">
+            <h3>Fill Color</h3>
+            <canvas class="hue-picker" id="fill-hue-picker"></canvas>
+            <canvas class="color-picker-canvas" id="fill-color-picker-canvas"></canvas>
+            <span class="color-preview" id="fill-color-preview"></span>
+        </div>
+        <div class="selector-container">
+            <h3>Font Color</h3>
+            <canvas class="hue-picker" id="font-hue-picker"></canvas>
+            <canvas class="color-picker-canvas" id="font-color-picker-canvas"></canvas>
+            <span class="color-preview" id="font-color-preview"></span>
+        </div>
+        <div class="btn-wrapper">
+            <button onclick="closeWindow()" class="submit-btn">Ok</button>
+            <button onclick="closeWindow()" class="submit-btn">Cancel</button>
         </div>
     </div>
 </body>
@@ -76,46 +113,92 @@
 <script>
     let x = 0;
     let y = 0;
-    let hueChoice = 0;
-    let saturationChoice = 0;
-    let ligntnessChoice = 0;
-    let colorChoice;
-    let colorPreview = document.getElementById('selected-color');
-    //Hue Selection: The Slider
-    var hueCanvas = document.getElementById("hue-picker");
-    var ctxHue = hueCanvas.getContext("2d");
-    hueCanvas.width = 360;
-    hueCanvas.height = 10;
-    ctxHue.fillStyle = "blue";
-    ctxHue.fillRect(0, 0, hueCanvas.width, hueCanvas.height);
-    for (hue = 0; hue <= 360; hue++) {
-        ctxHue.beginPath();
-        ctxHue.rect(x, 0, 1, 10);
-        ctxHue.fillStyle = "hsl(" + hue + "," + "100%," + "50%)";
-        ctxHue.fill();
-        x++;
+
+    let strokeHue = localStorage.getItem('strokeHue') != null ? localStorage.getItem('strokeHue') : 0;
+    let strokeSaturation = localStorage.getItem('strokeSaturation') != null ? localStorage.getItem('strokeSaturation') : 0;
+    let strokeLightness = localStorage.getItem('strokeLightness') != null ? localStorage.getItem('strokeLightness') : 0;
+    let strokeColor = localStorage.getItem('strokeColor');
+    document.getElementById('stroke-color-preview').style.backgroundColor = strokeColor;
+
+    let fillHue = localStorage.getItem('fillHue') != null ? localStorage.getItem('fillHue') : 0;
+    let fillSaturation = localStorage.getItem('fillHue') != null ? localStorage.getItem('fillHue') : 0;
+    let fillLightness = localStorage.getItem('fillHue') != null ? localStorage.getItem('fillHue') : 0;
+    let fillColor = localStorage.getItem('fillColor');
+    document.getElementById('fill-color-preview').style.backgroundColor = fillColor;
+
+    let fontHue = localStorage.getItem('fontHue') != null ? localStorage.getItem('fontHue') : 0;
+    let fontSaturation = localStorage.getItem('fontHue') != null ? localStorage.getItem('fontHue') : 0;
+    let fontLightness = localStorage.getItem('fontHue') != null ? localStorage.getItem('fontHue') : 0;
+    let fontColor = localStorage.getItem('fontColor');
+    document.getElementById('font-color-preview').style.backgroundColor = fontColor;
+
+    //Stroke Hue Selection: The Slider
+    var strokeHueCanvas = document.getElementById("stroke-hue-picker");
+    var ctxStrokeHue = strokeHueCanvas.getContext("2d");
+    strokeHueCanvas.width = 360;
+    strokeHueCanvas.height = 20;
+    //Stroke Create Hue Picker
+    drawHueSelection(ctxStrokeHue);
+
+    //Stroke Saturation Lightness Selection: The Box
+    var strokeColorCanvas = document.getElementById("stroke-color-picker-canvas");
+    var ctxStrokeColor = strokeColorCanvas.getContext("2d");
+    strokeColorCanvas.width = 100;
+    strokeColorCanvas.height = 100;
+    //Stroke Create Color Picker
+    drawColorPicker(strokeHue, ctxStrokeColor);
+
+    //Fill Hue Selection: The Slider
+    var fillHueCanvas = document.getElementById("fill-hue-picker");
+    var ctxFillHue = fillHueCanvas.getContext("2d");
+    fillHueCanvas.width = 360;
+    fillHueCanvas.height = 20;
+    //Fill Create Hue Picker
+    drawHueSelection(ctxFillHue);
+
+    //Fill Saturation Lightness Selection: The Box
+    var fillColorCanvas = document.getElementById("fill-color-picker-canvas");
+    var ctxFillColor = fillColorCanvas.getContext("2d");
+    fillColorCanvas.width = 100;
+    fillColorCanvas.height = 100;
+    //Fill Create Color Picker
+    drawColorPicker(fillHue, ctxFillColor);
+
+    //Font Hue Selection: The Slider
+    var fontHueCanvas = document.getElementById("font-hue-picker");
+    var ctxFontHue = fontHueCanvas.getContext("2d");
+    fontHueCanvas.width = 360;
+    fontHueCanvas.height = 20;
+    //Font Create Hue Picker
+    drawHueSelection(ctxFontHue);
+
+    //font Saturation Lightness Selection: The Box
+    var fontColorCanvas = document.getElementById("font-color-picker-canvas");
+    var ctxFontColor = fontColorCanvas.getContext("2d");
+    fontColorCanvas.width = 100;
+    fontColorCanvas.height = 100;
+    //Font Create Color Picker
+    drawColorPicker(fontHue, ctxFontColor);
+
+
+    function drawHueSelection(ctx) {
+        x = 0;
+        for (let hueCounter = 0; hueCounter <= 360; hueCounter++) {
+            ctx.beginPath();
+            ctx.rect(x, 0, 1, 20);
+            ctx.fillStyle = "hsl(" + hueCounter + "," + "100%," + "50%)";
+            ctx.fill();
+            x++;
+        }
     }
 
-
-    //Saturation Lightness Selection: The Box
-    var canvas = document.getElementById("color-picker-canvas");
-    var ctx = canvas.getContext("2d");
-    canvas.width = 100;
-    canvas.height = 100;
-    ctx.fillStyle = "blue";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    //Create Color Picker
-    drawColorPicker(0);
-    function drawColorPicker(hue) {
+    function drawColorPicker(hue, ctx) {
         x = 0;
-        for (let saturation = 0; saturation <= 100; saturation++) {
-            for (let lightness = 100; lightness >= 0; lightness--) {
-                // console.log("hsl(" + hue + "," + saturation + "%," + lightness + "%)");
-                // console.log(x + "," + y)
+        for (let saturationCounter = 0; saturationCounter <= 100; saturationCounter++) {
+            for (let lightnessCounter = 100; lightnessCounter >= 0; lightnessCounter--) {
                 ctx.beginPath();
                 ctx.rect(x, y, 1, 1);
-                ctx.fillStyle = "hsl(" + hue + "," + saturation + "%," + lightness + "%)";
+                ctx.fillStyle = "hsl(" + hue + "," + saturationCounter + "%," + lightnessCounter + "%)";
                 ctx.fill();
                 y++;
             }
@@ -124,34 +207,115 @@
         }
     }
 
-    //On hue select
-    hueCanvas.addEventListener("click", e => {
-        hueCanvasPageWidth = hueCanvas.getBoundingClientRect().width;
-        hueCanvasCalcWidth = hueCanvas.width;
+    //Stroke hue select
+    strokeHueCanvas.addEventListener("click", e => {
+        hueCanvasPagePosition = strokeHueCanvas.getBoundingClientRect().x;
+        hueCanvasPageWidth = strokeHueCanvas.getBoundingClientRect().width;
+        hueCanvasCalcWidth = strokeHueCanvas.width;
         let hueCanvasRatio = hueCanvasCalcWidth / hueCanvasPageWidth;
-        hueChoice = (e.x) * hueCanvasRatio;
-        drawColorPicker(hueChoice);
+        strokeHue = ((e.x) - hueCanvasPagePosition) * hueCanvasRatio;
+        drawColorPicker(strokeHue, ctxStrokeColor);
     })
 
-    //On color select
-    canvas.addEventListener("click", e => {
-        canvasPageWidth = canvas.getBoundingClientRect().width;
-        canvasCalcWidth = canvas.width;
+    //Stroke color select
+    let strokeColorPreview = document.getElementById('stroke-color-preview');
+    strokeColorCanvas.addEventListener("click", e => {
+        canvasPagePosition = strokeColorCanvas.getBoundingClientRect().x;
+        canvasPageWidth = strokeColorCanvas.getBoundingClientRect().width;
+        canvasCalcWidth = strokeColorCanvas.width;
         let canvasRatio = canvasCalcWidth / canvasPageWidth;
-        saturationChoice = (e.x) * canvasRatio;
-        ligntnessChoice = ((e.y) - canvas.getBoundingClientRect().y) * canvasRatio;
-        hueChoice = Math.ceil(hueChoice);
-        saturationChoice = Math.ceil(saturationChoice);
-        ligntnessChoice = Math.ceil(ligntnessChoice);
-        ligntnessChoice = Math.abs(ligntnessChoice - 100);
-        colorChoice = 'hsl(' + hueChoice + ',' + saturationChoice + '%,' + ligntnessChoice + '%)'
-        colorPreview.style.backgroundColor = colorChoice;
+        strokeSaturation = ((e.x) - canvasPagePosition) * canvasRatio;
+        strokeLightness = ((e.y) - strokeColorCanvas.getBoundingClientRect().y) * canvasRatio;
+        strokeHue = Math.ceil(strokeHue);
+        strokeSaturation = Math.ceil(strokeSaturation);
+        strokeLightness = Math.ceil(strokeLightness);
+        strokeLightness = Math.abs(strokeLightness - 100);
+        strokeColor = 'hsl(' + strokeHue + ',' + strokeSaturation + '%,' + strokeLightness + '%)';
+        console.log(strokeColor);
+        localStorage.setItem('strokeColor', strokeColor);
+        localStorage.setItem('strokeHue', strokeHue);
+        localStorage.setItem('strokeSaturation', strokeSaturation);
+        localStorage.setItem('strokeLightness', strokeLightness);
+        strokeColorPreview.style.backgroundColor = localStorage.getItem('strokeColor');
+        chooseColor();
+    });
+
+    //Fill hue select
+    fillHueCanvas.addEventListener("click", e => {
+        hueCanvasPagePosition = fillHueCanvas.getBoundingClientRect().x;
+        hueCanvasPageWidth = fillHueCanvas.getBoundingClientRect().width;
+        hueCanvasCalcWidth = fillHueCanvas.width;
+        let hueCanvasRatio = hueCanvasCalcWidth / hueCanvasPageWidth;
+        fillHue = ((e.x) - hueCanvasPagePosition) * hueCanvasRatio;
+        drawColorPicker(fillHue, ctxFillColor);
+    })
+
+    //Fill color select
+    let fillColorPreview = document.getElementById('fill-color-preview');
+    fillColorCanvas.addEventListener("click", e => {
+        canvasPagePosition = fillColorCanvas.getBoundingClientRect().x;
+        canvasPageWidth = fillColorCanvas.getBoundingClientRect().width;
+        canvasCalcWidth = fillColorCanvas.width;
+        let canvasRatio = canvasCalcWidth / canvasPageWidth;
+        fillSaturation = ((e.x) - canvasPagePosition) * canvasRatio;
+        fillLightness = ((e.y) - fillColorCanvas.getBoundingClientRect().y) * canvasRatio;
+        fillHue = Math.ceil(fillHue);
+        fillSaturation = Math.ceil(fillSaturation);
+        fillLightness = Math.ceil(fillLightness);
+        fillLightness = Math.abs(fillLightness - 100);
+        fillColor = 'hsl(' + fillHue + ',' + fillSaturation + '%,' + fillLightness + '%)';
+        console.log(fillColor);
+        localStorage.setItem('fillColor', fillColor);
+        localStorage.setItem('fillHue', fillHue);
+        localStorage.setItem('fillSaturation', fillSaturation);
+        localStorage.setItem('fillLightness', fillLightness);
+        fillColorPreview.style.backgroundColor = localStorage.getItem('fillColor');
+        chooseColor();
+    });
+
+    //Font hue select
+    fontHueCanvas.addEventListener("click", e => {
+        hueCanvasPagePosition = fontHueCanvas.getBoundingClientRect().x;
+        hueCanvasPageWidth = fontHueCanvas.getBoundingClientRect().width;
+        hueCanvasCalcWidth = fontHueCanvas.width;
+        let hueCanvasRatio = hueCanvasCalcWidth / hueCanvasPageWidth;
+        fontHue = ((e.x) - hueCanvasPagePosition) * hueCanvasRatio;
+        drawColorPicker(fontHue, ctxFontColor);
+    })
+
+    //Font color select
+    let fontColorPreview = document.getElementById('font-color-preview');
+    fontColorCanvas.addEventListener("click", e => {
+        canvasPagePosition = fontColorCanvas.getBoundingClientRect().x;
+        canvasPageWidth = fontColorCanvas.getBoundingClientRect().width;
+        canvasCalcWidth = fontColorCanvas.width;
+        let canvasRatio = canvasCalcWidth / canvasPageWidth;
+        fontSaturation = ((e.x) - canvasPagePosition) * canvasRatio;
+        fontLightness = ((e.y) - fontColorCanvas.getBoundingClientRect().y) * canvasRatio;
+        fontHue = Math.ceil(fontHue);
+        fontSaturation = Math.ceil(fontSaturation);
+        fontLightness = Math.ceil(fontLightness);
+        fontLightness = Math.abs(fontLightness - 100);
+        fontColor = 'hsl(' + fontHue + ',' + fontSaturation + '%,' + fontLightness + '%)';
+        console.log(fontColor);
+        localStorage.setItem('fontColor', fontColor);
+        localStorage.setItem('fontHue', fontHue);
+        localStorage.setItem('fontSaturation', fontSaturation);
+        localStorage.setItem('fontLightness', fontLightness);
+        fontColorPreview.style.backgroundColor = localStorage.getItem('fontColor');
+        chooseColor();
     });
 
     const electron = require('electron');
-    const { ipcRenderer } = electron;
+    const {
+        ipcRenderer
+    } = electron;
+
     function chooseColor() {
-        localStorage.setItem('strokeColor', colorChoice);
-        ipcRenderer.send('pick-color', colorChoice);
+        ipcRenderer.send('pick-color');
+    }
+
+    function closeWindow() {
+        ipcRenderer.send('close-color-window');
     }
 </script>
