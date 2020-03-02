@@ -9,7 +9,6 @@ const {
     ipcMain
 } = electron;
 let mainWindow;
-let colorPickWindow;
 
 //Disable hardware acceleration to allow for capture in obs
 app.disableHardwareAcceleration();
@@ -46,32 +45,7 @@ app.on('ready', function () {
 //Create menu
 const mainMenuTemplate = [{
     label: 'File',
-    submenu: [{
-            label: 'Stroke Color',
-            click() {
-                colorPickWindow = new BrowserWindow({
-                    webPreferences: {
-                        nodeIntegration: true
-                    },
-                    frame: false,
-                    width: 600,
-                    height: 590,
-                    resizable: false
-                });
-                colorPickWindow.loadURL(url.format({
-                    pathname: path.join(__dirname, 'colorpicker.html'),
-                    protocol: 'file:',
-                    slashes: true
-                }));
-                colorPickWindow.on('closed', function () {
-                    colorPickWindow = null;
-                });
-            },
-            accelerator: 'CmdOrCtrl+E'
-        },
-        {
-            label: 'Highlight Color'
-        },
+    submenu: [
         {
             label: 'Exit',
             accelerator: 'CmdOrCtrl+Q',
@@ -105,26 +79,6 @@ if (process.env.NODE_ENV !== 'production') {
     })
 }
 
-//Open Color Window
-ipcMain.on('open-colors',() => {
-    colorPickWindow = new BrowserWindow({
-        webPreferences: {
-            nodeIntegration: true
-        },
-        frame: false,
-        width: 1200,
-        height: 590,
-        resizable: false
-    });
-    colorPickWindow.loadURL(url.format({
-        pathname: path.join(__dirname, 'colorpicker.html'),
-        protocol: 'file:',
-        slashes: true
-    }));
-    colorPickWindow.on('closed', function () {
-        colorPickWindow = null;
-    });
-})
 
 //Open Settings Window
 ipcMain.on('open-settings',() => {
@@ -145,14 +99,6 @@ ipcMain.on('open-settings',() => {
     settingsWindow.on('closed', function () {
         settingsWindow = null;
     });
-})
-
-//Color Picking
-ipcMain.on('pick-color', function() {
-    mainWindow.webContents.send('color-pick');
-})
-ipcMain.on('close-color-window', function() {
-    colorPickWindow.close();
 })
 
 //Close Main Window

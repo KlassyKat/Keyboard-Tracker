@@ -44,6 +44,7 @@
             gap: 5px;
             align-items: center;
             width: 70%;
+            font-weight: bold;
         }
 
         .slider {
@@ -64,7 +65,7 @@
             width: 25px;
             height: 25px;
             border-radius: 50%;
-            background: #4CAF50;
+            background: rgb(26, 26, 26);
             cursor: pointer;
         }
     </style>
@@ -84,6 +85,14 @@
 </body>
 
 <script>
+    const fontList = require('font-list');
+    fontList.getFonts()
+  .then(fonts => {
+    console.log(fonts)
+  })
+  .catch(err => {
+    console.log(err)
+  })
     var slider = document.getElementById("stroke-width-input");
     var sliderValueDisplay = document.getElementById("stroke-width-value");
     sliderValueDisplay.innerHTML = slider.value; // Display the default slider value
