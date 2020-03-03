@@ -89,17 +89,28 @@ ipcMain.on('open-settings',() => {
         frame: false,
         width: 600,
         height: 590,
-        resizable: false
+        resizable: false,
+        show: false,
+        backgroundColor: '#808080',
+        offscreen: true
     });
     settingsWindow.loadURL(url.format({
         pathname: path.join(__dirname, 'settings.html'),
         protocol: 'file:',
         slashes: true
     }));
+    settingsWindow.once('ready-to-show', () => {
+        settingsWindow.show();
+    });
     settingsWindow.on('closed', function () {
         settingsWindow = null;
     });
-})
+});
+
+//Close setting window
+ipcMain.on('close-setting-window', () => {
+    settingsWindow.close();
+});
 
 //Close Main Window
 ipcMain.on('close-main-window', function() {
