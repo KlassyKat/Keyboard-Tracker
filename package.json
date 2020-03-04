@@ -17,7 +17,8 @@
   "dependencies": {
     "@simonwep/pickr": "^1.5.1",
     "font-list": "^1.2.6",
-    "iohook": "^0.6.5"
+    "iohook": "^0.6.5",
+    "node-localstorage": "^2.1.5"
   },
   "devDependencies": {
     "electron": "^8.0.1",

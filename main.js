@@ -1,7 +1,6 @@
 const electron = require('electron');
 const url = require('url');
 const path = require('path');
-
 const {
     app,
     BrowserWindow,
@@ -9,6 +8,7 @@ const {
     ipcMain
 } = electron;
 let mainWindow;
+let settingsWindow;
 
 //Disable hardware acceleration to allow for capture in obs
 app.disableHardwareAcceleration();
@@ -21,7 +21,9 @@ app.on('ready', function () {
             nodeIntegration: true
         },
         frame: false,
-        icon: './assets/icons/win/icon.ico'
+        icon: './assets/icons/win/icon.ico',
+        backgroundColor: '#252525',
+        minimizable: false
     });
     //Load html in
     mainWindow.loadURL(url.format({
@@ -45,15 +47,13 @@ app.on('ready', function () {
 //Create menu
 const mainMenuTemplate = [{
     label: 'File',
-    submenu: [
-        {
-            label: 'Exit',
-            accelerator: 'CmdOrCtrl+Q',
-            click() {
-                app.quit();
-            }
+    submenu: [{
+        label: 'Exit',
+        accelerator: 'CmdOrCtrl+Q',
+        click() {
+            app.quit();
         }
-    ]
+    }]
 }];
 
 //Add empty object to menu if mac
@@ -81,7 +81,7 @@ if (process.env.NODE_ENV !== 'production') {
 
 
 //Open Settings Window
-ipcMain.on('open-settings',() => {
+ipcMain.on('open-settings', () => {
     settingsWindow = new BrowserWindow({
         webPreferences: {
             nodeIntegration: true
@@ -92,7 +92,9 @@ ipcMain.on('open-settings',() => {
         resizable: false,
         show: false,
         backgroundColor: '#808080',
-        offscreen: true
+        offscreen: true,
+        parent: mainWindow,
+        modal: true
     });
     settingsWindow.loadURL(url.format({
         pathname: path.join(__dirname, 'settings.html'),
@@ -101,18 +103,27 @@ ipcMain.on('open-settings',() => {
     }));
     settingsWindow.once('ready-to-show', () => {
         settingsWindow.show();
+        
     });
-    settingsWindow.on('closed', function () {
-        settingsWindow = null;
-    });
+    // settingsWindow.on('closed', function () {
+    //     settingsWindow = null;
+    // });
 });
 
-//Close setting window
+//Window handeling
+ipcMain.on('open-settings', () => {
+    settingsWindow.show();
+})
+
+//Setting window
 ipcMain.on('close-setting-window', () => {
     settingsWindow.close();
 });
+ipcMain.on('apply-settings', () => {
+    mainWindow.webContents.send('load-settings');
+});
 
 //Close Main Window
-ipcMain.on('close-main-window', function() {
+ipcMain.on('close-main-window', function () {
     mainWindow.close();
 });

@@ -93,7 +93,7 @@
 
         .color-label {
             font-size: 0.9em;
-            font-weight:400;
+            font-weight: 400;
         }
 
         .color-picker {
@@ -220,6 +220,9 @@
 
         .pcr-save {
             background-color: green;
+        }
+        text {
+            display: flex;
         }
     </style>
 </head>
@@ -423,7 +426,6 @@
 </body>
 
 </html>
-
 <script>
     const electron = require('electron');
     const {
@@ -619,7 +621,7 @@
     //Stroke
     let strokeStoreColor;
     let newStrokeColor;
-    
+
     //Set to fallback to original value if not saved
     strokePicker.on('show', instance => {
         strokeStoreColor = localStorage.getItem('strokeColor') || 'rgba(255,255,255,1)';
@@ -631,7 +633,7 @@
         let g = newStrokeColor[1];
         let b = newStrokeColor[2];
         let a = newStrokeColor[3];
-        newStrokeColor = 'rgba(' + r + ',' + g + ',' + b + ',' + a +')'
+        newStrokeColor = 'rgba(' + r + ',' + g + ',' + b + ',' + a + ')'
         localStorage.setItem('strokeColor', newStrokeColor);
         getStoredColors();
     });
@@ -652,7 +654,7 @@
     //Fill
     let fillStoreColor;
     let newFillColor;
-    
+
     //Set to fallback to original value if not saved
     fillPicker.on('show', instance => {
         fillStoreColor = localStorage.getItem('fillColor') || 'rgba(0,0,0,1)';
@@ -664,7 +666,7 @@
         let g = newFillColor[1];
         let b = newFillColor[2];
         let a = newFillColor[3];
-        newFillColor = 'rgba(' + r + ',' + g + ',' + b + ',' + a +')'
+        newFillColor = 'rgba(' + r + ',' + g + ',' + b + ',' + a + ')'
         localStorage.setItem('fillColor', newFillColor);
         getStoredColors();
     });
@@ -685,7 +687,7 @@
     //Font
     let fontStoreColor;
     let newFontColor;
-    
+
     //Set to fallback to original value if not saved
     fontPicker.on('show', instance => {
         fontStoreColor = localStorage.getItem('fontColor') || 'rgba(0,0,0,1)';
@@ -697,7 +699,7 @@
         let g = newFontColor[1];
         let b = newFontColor[2];
         let a = newFontColor[3];
-        newFontColor = 'rgba(' + r + ',' + g + ',' + b + ',' + a +')'
+        newFontColor = 'rgba(' + r + ',' + g + ',' + b + ',' + a + ')'
         localStorage.setItem('fontColor', newFontColor);
         getStoredColors();
     });
@@ -713,5 +715,22 @@
         fontStoreColor = newFontColor || fontStoreColor;
         localStorage.setItem('fontColor', fontStoreColor);
         getStoredColors();
+    })
+
+    //Change keyboard font 
+    var textNodes = document.querySelectorAll('text');
+    for (let i = 0; i < textNodes.length; i++) {
+        textNodes[i].style.fontFamily = localStorage.getItem('selectedFont');
+        var parent = textNodes[i].parentNode;
+        let parentWidth = parent.getBoundingClientRect().width;
+        let nodeWidth = textNodes[i].getBoundingClientRect().width;
+        let sizeRatio = nodeWidth / parentWidth;
+        // textNodes[i].transform.baseVal[1].matrix.a = 1.5
+        console.log(textNodes[i].transform.scale)
+    }
+    ipcRenderer.on('load-settings', () => {
+        for (let i = 0; i < textNodes.length; i++) {
+            textNodes[i].style.fontFamily = localStorage.getItem('selectedFont');
+        }
     })
 </script>
