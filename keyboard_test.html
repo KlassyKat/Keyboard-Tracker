@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- 'classic' theme -->
+    <link rel="stylesheet" href="pickr.css">
+    <script src="pickr.js"></script>
+    <title>Keyboard Tracker</title>
+    <style>
+        @import url(https://fonts.googleapis.com/css?family=Montserrat:100,100italic,200,200italic,300,300italic,regular,italic,500,500italic,600,600italic,700,700italic,800,800italic,900,900italic);
+
+        :root {
+            --stroke-color: white;
+            --fill-color: black;
+            --font-color: white;
+        }
+
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: rgb(0, 255, 0);
+            -webkit-user-select: none;
+            /* Chrome all / Safari all */
+            -moz-user-select: none;
+            /* Firefox all */
+            -ms-user-select: none;
+            /* IE 10+ */
+            user-select: none;
+        }
+
+        .control-bar {
+            display: grid;
+            grid-template-columns: auto 1fr 40px;
+            background-color: rgb(37, 37, 37);
+            -webkit-app-region: drag;
+        }
+
+        .control-bar>h2 {
+            margin: 5.5px;
+            padding: 0;
+            color: rgb(199, 73, 193);
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .control-bar>h2>span {
+            color: white;
+            font-weight: 300;
+        }
+
+        /* Settings Buttons / Color selection */
+        .settings-wrapper {
+            display: flex;
+            background-color: #444;
+        }
+
+        .settings-btn {
+            padding: 5px;
+            margin: 4px;
+            font-size: 1.2em;
+            font-weight: 600;
+            font-family: 'Montserrat', sans-serif;
+            color: white;
+            background-color: #202020;
+            border: 2px outset white;
+            border-radius: 5px;
+        }
+
+        .settings-btn:hover {
+            background-color: #111;
+        }
+
+        .color-wrapper {
+            display: grid;
+            grid-template-columns: repeat(7, auto);
+            gap: 5px;
+            align-items: center;
+            padding: 0 5px 0 0;
+            font-size: 1.2em;
+            font-weight: 600;
+            font-family: 'Montserrat', sans-serif;
+            color: white;
+            background-color: #131313;
+        }
+
+        .colors-label {
+            display: flex;
+            align-items: center;
+            background-color: #000;
+            padding: 0 5px;
+            height: 100%;
+        }
+
+        .color-label {
+            font-size: 0.9em;
+            font-weight: 400;
+        }
+
+        .color-picker {
+            border: 2px inset black;
+        }
+
+        .close-window {
+            grid-column: 3;
+            width: 40px;
+            -webkit-app-region: no-drag;
+        }
+
+        .close-window:hover {
+            background-color: rgb(8, 8, 8);
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: 35vw 29vw 29vw;
+            align-items: flex-end;
+            gap: 2vw;
+            max-width: 95vw;
+            max-height: 95vh;
+        }
+
+        .space-more {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
+            gap: 1vmax;
+        }
+
+        .mouse-nums {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            grid-template-rows: 1fr 1fr 1fr 1fr;
+            gap: 1vmax;
+        }
+
+        .mouse {
+            display: grid;
+            grid-template-rows: 1fr 1fr;
+            grid-template-columns: 100%;
+            justify-content: center;
+        }
+
+        /* keys */
+        #space {
+            grid-column: 1/4;
+            width: 100%;
+        }
+
+        /* mouse */
+        .mouse-key-wrapper {
+            position: relative;
+            display: grid;
+            grid-template-columns: 3fr 3fr;
+            justify-content: center;
+            width: 100%;
+            align-items: flex-end;
+        }
+
+        .MMB {
+            position: absolute;
+            width: 5vw;
+            left: 12.1vw;
+        }
+
+        .mouse-bottom-wrapper {
+            display: flex;
+            position: relative;
+        }
+
+        #mouse-bottom {
+            width: 100%;
+        }
+
+        #directional-area {
+            position: absolute;
+            width: 60%;
+            left: 20%;
+            top: 10%;
+        }
+
+        #mouse-tracker {
+            position: absolute;
+            transform-origin: 459.952 275.539;
+        }
+
+
+        /* Class Binding */
+        .pressed {
+            fill: var(--fill-color);
+        }
+
+        svg>path {
+            stroke: var(--stroke-color);
+        }
+
+        svg text {
+            fill: var(--font-color);
+        }
+
+        /* Pickr css override */
+        .pcr-app {
+            background: #222;
+        }
+
+        .pcr-app[data-theme=classic] .pcr-selection .pcr-color-preview:before {
+            background: none;
+        }
+
+        .pcr-app[data-theme=classic] .pcr-selection .pcr-color-palette .pcr-palette:before {
+            background: none;
+        }
+
+        .pickr .pcr-button:before {
+            background: none;
+        }
+
+        .pcr-app .pcr-swatches>button:before {
+            background: none;
+        }
+
+        .pcr-save {
+            background-color: green;
+        }
+        text {
+            display: flex;
+        }
+    </style>
+</head>
+
+<body onload="getStoredColors()">
+    <nav class="control-bar">
+        <h2>Keyboard<span>Tracker</span></h2>
+        <span onclick="closeWindow()" class="close-window"><svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"
+                fill-rule="evenodd" clip-rule="evenodd" stroke-linejoin="round" stroke-miterlimit="2">
+                <path
+                    d="M140.5 40.499l19 19.002L119 100l40.5 40.498-19 19.002L100 119l-40.5 40.5-19-19.002L81 100.001l-40.5-40.5 19-19.002 40.5 40.5 40.5-40.5z"
+                    fill="#fff" /></svg></span>
+    </nav>
+    <div class="settings-wrapper">
+        <button onclick="openSettings()" class="settings-btn">Settings</button>
+        <div class="color-wrapper">
+            <div class="colors-label">Colors</div>
+            <span class="color-label">Stroke:</span>
+            <div class="stroke-color-picker color-picker"></div>
+            <span class="color-label">Fill:</span>
+            <div class="fill-color-picker color-picker"></div>
+            <span class="color-label">Font:</span>
+            <div class="font-color-picker color-picker"></div>
+        </div>
+    </div>
+    <div class="container">
+        <iframe src="./keyboards/floodzCustom.html" onload="this.before((this.contentDocument.body||this.contentDocument).children[0]);this.remove()"></iframe>
+
+    </div>
+</body>
+
+</html>
+<script>
+    const electron = require('electron');
+    const {
+        ipcRenderer
+    } = electron;
+    'use strict';
+
+    //Button tracking
+    const iohook = require('iohook');
+
+    iohook.on('keydown', pushKey);
+
+    function pushKey(e) {
+        let key = document.getElementById(e.keycode);
+        key.classList.add("pressed");
+    }
+
+    iohook.on('keyup', releaseKey)
+
+    function releaseKey(e) {
+        let key = document.getElementById(e.keycode);
+        key && key.classList.remove("pressed");
+    }
+
+    iohook.on('mousedown', (e) => {
+        if (e.button == 1) {
+            document.getElementById('LMB').classList.add("pressed");
+        } else if (e.button == 2) {
+            document.getElementById('RMB').classList.add("pressed");
+        } else {
+            document.getElementById('MMB').classList.add("pressed");
+        }
+    })
+
+    iohook.on('mouseup', (e) => {
+        if (e.button == 1) {
+            document.getElementById('LMB').classList.remove("pressed");
+        } else if (e.button == 2) {
+            document.getElementById('RMB').classList.remove("pressed");
+        } else {
+            document.getElementById('MMB').classList.remove("pressed");
+        }
+    })
+
+    iohook.start();
+
+    //Window Handeling
+    function openSettings() {
+        ipcRenderer.send('open-settings');
+    }
+
+    function closeWindow() {
+        ipcRenderer.send('close-main-window');
+    }
+
+
+    //Color Picking  Done with https://www.npmjs.com/package/@simonwep/pickr/v/1.5.1
+    function getStoredColors() {
+        let root = document.documentElement;
+        root.style.setProperty('--stroke-color', localStorage.getItem('strokeColor') || 'rgba(255,255,255,1)');
+        root.style.setProperty('--fill-color', localStorage.getItem('fillColor') || 'rgba(0,0,0,1)');
+        root.style.setProperty('--font-color', localStorage.getItem('fontColor') || 'rgba(255,255,255,1)');
+    }
+    //Stroke
+    const strokePicker = Pickr.create({
+        el: '.stroke-color-picker',
+        theme: 'classic', // or 'monolith', or 'nano'
+        default: localStorage.getItem('strokeColor') || 'rgba(255,255,255,1)',
+        swatches: [
+            'rgba(244, 67, 54, 1)',
+            'rgba(233, 30, 99, 1)',
+            'rgba(156, 39, 176, 1)',
+            'rgba(103, 58, 183, 1)',
+            'rgba(63, 81, 181, 1)',
+            'rgba(33, 150, 243, 1)',
+            'rgba(3, 169, 244, 1)',
+            'rgba(0, 188, 212, 1)',
+            'rgba(0, 150, 136, 1)',
+            'rgba(76, 175, 80, 1)',
+            'rgba(139, 195, 74, 1)',
+            'rgba(205, 220, 57, 1)',
+            'rgba(255, 235, 59, 1)',
+            'rgba(255, 193, 7, 1)'
+        ],
+
+        components: {
+
+            // Main components
+            preview: true,
+            opacity: true,
+            hue: true,
+
+            // Input / output Options
+            interaction: {
+                hex: true,
+                rgba: true,
+                hsla: true,
+                hsva: false,
+                cmyk: false,
+                input: true,
+                clear: false,
+                save: true
+            }
+        }
+    });
+    //Fill
+    const fillPicker = Pickr.create({
+        el: '.fill-color-picker',
+        theme: 'classic', // or 'monolith', or 'nano'
+        default: localStorage.getItem('fillColor') || 'rgba(0,0,0,1)',
+        swatches: [
+            'rgba(244, 67, 54, 1)',
+            'rgba(233, 30, 99, 1)',
+            'rgba(156, 39, 176, 1)',
+            'rgba(103, 58, 183, 1)',
+            'rgba(63, 81, 181, 1)',
+            'rgba(33, 150, 243, 1)',
+            'rgba(3, 169, 244, 1)',
+            'rgba(0, 188, 212, 1)',
+            'rgba(0, 150, 136, 1)',
+            'rgba(76, 175, 80, 1)',
+            'rgba(139, 195, 74, 1)',
+            'rgba(205, 220, 57, 1)',
+            'rgba(255, 235, 59, 1)',
+            'rgba(255, 193, 7, 1)'
+        ],
+
+        components: {
+
+            // Main components
+            preview: true,
+            opacity: true,
+            hue: true,
+
+            // Input / output Options
+            interaction: {
+                hex: true,
+                rgba: true,
+                hsla: true,
+                hsva: false,
+                cmyk: false,
+                input: true,
+                clear: false,
+                save: true
+            }
+        }
+    });
+    //Font
+    const fontPicker = Pickr.create({
+        el: '.font-color-picker',
+        theme: 'classic', // or 'monolith', or 'nano'
+        default: localStorage.getItem('fontColor') || 'rgba(255,255,255,1)',
+        swatches: [
+            'rgba(244, 67, 54, 1)',
+            'rgba(233, 30, 99, 1)',
+            'rgba(156, 39, 176, 1)',
+            'rgba(103, 58, 183, 1)',
+            'rgba(63, 81, 181, 1)',
+            'rgba(33, 150, 243, 1)',
+            'rgba(3, 169, 244, 1)',
+            'rgba(0, 188, 212, 1)',
+            'rgba(0, 150, 136, 1)',
+            'rgba(76, 175, 80, 1)',
+            'rgba(139, 195, 74, 1)',
+            'rgba(205, 220, 57, 1)',
+            'rgba(255, 235, 59, 1)',
+            'rgba(255, 193, 7, 1)'
+        ],
+
+        components: {
+
+            // Main components
+            preview: true,
+            opacity: true,
+            hue: true,
+
+            // Input / output Options
+            interaction: {
+                hex: true,
+                rgba: true,
+                hsla: true,
+                hsva: false,
+                cmyk: false,
+                input: true,
+                clear: false,
+                save: true
+            }
+        }
+    });
+
+    //Handleing Colors
+
+    //Stroke
+    let strokeStoreColor;
+    let newStrokeColor;
+
+    //Set to fallback to original value if not saved
+    strokePicker.on('show', instance => {
+        strokeStoreColor = localStorage.getItem('strokeColor') || 'rgba(255,255,255,1)';
+    });
+    //Preview color on change
+    strokePicker.on('change', instance => {
+        newStrokeColor = instance.toRGBA();
+        let r = newStrokeColor[0];
+        let g = newStrokeColor[1];
+        let b = newStrokeColor[2];
+        let a = newStrokeColor[3];
+        newStrokeColor = 'rgba(' + r + ',' + g + ',' + b + ',' + a + ')'
+        localStorage.setItem('strokeColor', newStrokeColor);
+        getStoredColors();
+    });
+    //Revert to original if not saved
+    strokePicker.on('hide', instance => {
+        console.log('hide');
+        localStorage.setItem('strokeColor', strokeStoreColor);
+        getStoredColors();
+    });
+    //Set color when saved
+    strokePicker.on('save', instance => {
+        console.log('save');
+        strokeStoreColor = newStrokeColor || strokeStoreColor;
+        localStorage.setItem('strokeColor', strokeStoreColor);
+        getStoredColors();
+    })
+
+    //Fill
+    let fillStoreColor;
+    let newFillColor;
+
+    //Set to fallback to original value if not saved
+    fillPicker.on('show', instance => {
+        fillStoreColor = localStorage.getItem('fillColor') || 'rgba(0,0,0,1)';
+    });
+    //Preview color on change
+    fillPicker.on('change', instance => {
+        newFillColor = instance.toRGBA();
+        let r = newFillColor[0];
+        let g = newFillColor[1];
+        let b = newFillColor[2];
+        let a = newFillColor[3];
+        newFillColor = 'rgba(' + r + ',' + g + ',' + b + ',' + a + ')'
+        localStorage.setItem('fillColor', newFillColor);
+        getStoredColors();
+    });
+    //Revert to original if not saved
+    fillPicker.on('hide', instance => {
+        console.log('hide');
+        localStorage.setItem('fillColor', fillStoreColor);
+        getStoredColors();
+    });
+    //Set color when saved
+    fillPicker.on('save', instance => {
+        console.log('save');
+        fillStoreColor = newFillColor || fillStoreColor;
+        localStorage.setItem('fillColor', fillStoreColor);
+        getStoredColors();
+    })
+
+    //Font
+    let fontStoreColor;
+    let newFontColor;
+
+    //Set to fallback to original value if not saved
+    fontPicker.on('show', instance => {
+        fontStoreColor = localStorage.getItem('fontColor') || 'rgba(0,0,0,1)';
+    });
+    //Preview color on change
+    fontPicker.on('change', instance => {
+        newFontColor = instance.toRGBA();
+        let r = newFontColor[0];
+        let g = newFontColor[1];
+        let b = newFontColor[2];
+        let a = newFontColor[3];
+        newFontColor = 'rgba(' + r + ',' + g + ',' + b + ',' + a + ')'
+        localStorage.setItem('fontColor', newFontColor);
+        getStoredColors();
+    });
+    //Revert to original if not saved
+    fontPicker.on('hide', instance => {
+        console.log('hide');
+        localStorage.setItem('fontColor', fontStoreColor);
+        getStoredColors();
+    });
+    //Set color when saved
+    fontPicker.on('save', instance => {
+        console.log('save');
+        fontStoreColor = newFontColor || fontStoreColor;
+        localStorage.setItem('fontColor', fontStoreColor);
+        getStoredColors();
+    })
+
+    //Change keyboard font 
+    var textNodes = document.querySelectorAll('text');
+    for (let i = 0; i < textNodes.length; i++) {
+        textNodes[i].style.fontFamily = localStorage.getItem('selectedFont');
+        var parent = textNodes[i].parentNode;
+        let parentWidth = parent.getBoundingClientRect().width;
+        let nodeWidth = textNodes[i].getBoundingClientRect().width;
+        let sizeRatio = nodeWidth / parentWidth;
+        // textNodes[i].transform.baseVal[1].matrix.a = 1.5
+        console.log(textNodes[i].transform.scale)
+    }
+    ipcRenderer.on('load-settings', () => {
+        for (let i = 0; i < textNodes.length; i++) {
+            textNodes[i].style.fontFamily = localStorage.getItem('selectedFont');
+        }
+    })
+</script>

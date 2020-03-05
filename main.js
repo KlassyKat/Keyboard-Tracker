@@ -18,7 +18,8 @@ app.on('ready', function () {
     //Create window
     mainWindow = new BrowserWindow({
         webPreferences: {
-            nodeIntegration: true
+            nodeIntegration: true,
+            webSecurity: false
         },
         frame: false,
         icon: './assets/icons/win/icon.ico',
@@ -27,7 +28,7 @@ app.on('ready', function () {
     });
     //Load html in
     mainWindow.loadURL(url.format({
-        pathname: path.join(__dirname, 'keyboard.html'),
+        pathname: path.join(__dirname, 'keyboard_test.html'),
         protocol: 'file:',
         slashes: true
     }));

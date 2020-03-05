@@ -140,6 +140,21 @@
     //Select with system fonts created in font.js appended to wrapper here.
     document.getElementById('font-select-wrapper').appendChild(selectionElement);
     var select = document.querySelector('.font-select');
+    //Load fonts incrementally. Note: tries to load all at once in for loop and freezes
+    let i = 0;
+    let loadFontsGracefully;
+    function loadFontFamily() {
+        loadFontsGracefully = setInterval(loadFont, 0);
+    }
+
+    function loadFont() {
+        if (i < selectionElement.options.length) {
+            selectionElement[i].style.fontFamily = selectionElement[i].innerHTML;
+            i++;
+        } else {
+            clearInterval(loadFontsGracefully)
+        }
+    }
     //Register font when picked
     select.addEventListener('change', (e) => {
         let selectedFont = e.target.selectedOptions[0].value;
@@ -147,20 +162,6 @@
         select.style.fontFamily = selectedFont;
         localStorage.setItem('selectedFont', selectedFont);
     });
-    //Load fonts incrementally. Note: tries to load all at once in for loop and freezes
-    let i = 0;
-    let loadFontsGracefully;
-    function loadFontFamily() {
-        loadFontsGracefully = setInterval(loadFont, 0);
-    }
-    function loadFont() {
-        if(i < selectionElement.options.length) {
-            selectionElement[i].style.fontFamily = selectionElement[i].innerHTML;
-            i++;
-        } else {
-            clearInterval(loadFontsGracefully)
-        }
-    }
 
 
     //Stroke slider
@@ -178,6 +179,7 @@
         ipcRenderer.send('apply-settings');
         ipcRenderer.send('close-setting-window');
     }
+
     function closeWindowCancel() {
         ipcRenderer.send('close-setting-window');
     }
