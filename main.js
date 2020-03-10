@@ -104,7 +104,6 @@ ipcMain.on('open-settings', () => {
     }));
     settingsWindow.once('ready-to-show', () => {
         settingsWindow.show();
-        
     });
     // settingsWindow.on('closed', function () {
     //     settingsWindow = null;

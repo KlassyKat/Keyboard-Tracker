@@ -2,6 +2,8 @@
 <html lang="en">
 
 <head>
+    <!-- import keyboard styles -->
+    <link rel="stylesheet" href="./keyboards/floodzCustom.css">
     <!-- 'classic' theme -->
     <link rel="stylesheet" href="pickr.css">
     <script src="pickr.js"></script>
@@ -110,80 +112,6 @@
             background-color: rgb(8, 8, 8);
         }
 
-        .container {
-            display: grid;
-            grid-template-columns: 35vw 29vw 29vw;
-            align-items: flex-end;
-            gap: 2vw;
-            max-width: 95vw;
-            max-height: 95vh;
-        }
-
-        .space-more {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            grid-template-rows: 1fr 1fr;
-            gap: 1vmax;
-        }
-
-        .mouse-nums {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            grid-template-rows: 1fr 1fr 1fr 1fr;
-            gap: 1vmax;
-        }
-
-        .mouse {
-            display: grid;
-            grid-template-rows: 1fr 1fr;
-            grid-template-columns: 100%;
-            justify-content: center;
-        }
-
-        /* keys */
-        #space {
-            grid-column: 1/4;
-            width: 100%;
-        }
-
-        /* mouse */
-        .mouse-key-wrapper {
-            position: relative;
-            display: grid;
-            grid-template-columns: 3fr 3fr;
-            justify-content: center;
-            width: 100%;
-            align-items: flex-end;
-        }
-
-        .MMB {
-            position: absolute;
-            width: 5vw;
-            left: 12.1vw;
-        }
-
-        .mouse-bottom-wrapper {
-            display: flex;
-            position: relative;
-        }
-
-        #mouse-bottom {
-            width: 100%;
-        }
-
-        #directional-area {
-            position: absolute;
-            width: 60%;
-            left: 20%;
-            top: 10%;
-        }
-
-        #mouse-tracker {
-            position: absolute;
-            transform-origin: 459.952 275.539;
-        }
-
-
         /* Class Binding */
         .pressed {
             fill: var(--fill-color);
@@ -221,6 +149,7 @@
         .pcr-save {
             background-color: green;
         }
+
         text {
             display: flex;
         }
@@ -248,10 +177,7 @@
             <div class="font-color-picker color-picker"></div>
         </div>
     </div>
-    <div class="container">
-        <iframe src="./keyboards/floodzCustom.html" onload="this.before((this.contentDocument.body||this.contentDocument).children[0]);this.remove()"></iframe>
-
-    </div>
+    <iframe id="keyboard-import" src="./keyboards/floodzCustom.html"></iframe>
 </body>
 
 </html>
@@ -261,6 +187,18 @@
         ipcRenderer
     } = electron;
     'use strict';
+
+    //Load in keyboard
+
+    //TODO Add function run at load remove all children of container
+    //Make iframe with localstorage src
+    //remove iframe
+    var keyboardIframe = document.getElementById('keyboard-import');
+    console.log(keyboardIframe.contentDocument.body.children[0]);
+    keyboardIframe.before(keyboardIframe.contentDocument.body.children[0]);
+    keyboardIframe.remove();
+
+
 
     //Button tracking
     const iohook = require('iohook');
