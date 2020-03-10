@@ -177,7 +177,7 @@
             <div class="font-color-picker color-picker"></div>
         </div>
     </div>
-    <iframe id="keyboard-import" src="./keyboards/floodzCustom.html"></iframe>
+    <!-- <iframe id="keyboard-import" src="./keyboards/floodzCustom.html"></iframe> -->
 </body>
 
 </html>
@@ -190,13 +190,36 @@
 
     //Load in keyboard
 
+
     //TODO Add function run at load remove all children of container
     //Make iframe with localstorage src
     //remove iframe
-    var keyboardIframe = document.getElementById('keyboard-import');
-    console.log(keyboardIframe.contentDocument.body.children[0]);
-    keyboardIframe.before(keyboardIframe.contentDocument.body.children[0]);
-    keyboardIframe.remove();
+    // function loadKeyboard(){
+    //     var iframe = document.createElement('iframe');
+    //     iframe.src = './keyboards/floodzCustom.html';
+    //     iframe.id = 'keyboard-import'
+    //     document.body.appendChild(iframe);
+    //     removeIframe();
+    // }
+
+    // async function removeIframe() {
+    //     var iframe = document.getElementById('keyboard-import');
+    //     var iframeContent = iframe;
+    //     console.log(iframeContent)
+    //     var iframeContent = iframeContent.contentDocument.body.children[0]
+    //     console.log(iframeContent)
+    //     // console.log(iframe.contentDocument.body.children)
+    //     // iframe.before(iframe.contentDocument.body.children[0]);
+    //     // iframe.remove();
+    // }
+
+
+
+    // var keyboardIframe = document.getElementById('keyboard-import');
+    // console.log(keyboardIframe.contentDocument.body.children[0]);
+    // keyboardIframe.before(keyboardIframe.contentDocument.body.children[0]);
+    // keyboardIframe.remove();
+
 
 
 
