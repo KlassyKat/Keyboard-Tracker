@@ -3,9 +3,9 @@
 
 <head>
     <!-- import keyboard styles -->
-    <link rel="stylesheet" href="./keyboards/floodzCustom.css">
     <!-- 'classic' theme -->
     <link rel="stylesheet" href="pickr.css">
+    <link rel="stylesheet" href="./keyboards/mouse.css">
     <script src="pickr.js"></script>
     <title>Keyboard Tracker</title>
     <style>
@@ -15,13 +15,14 @@
             --stroke-color: white;
             --fill-color: black;
             --font-color: white;
+            --bg-color: rgb(46, 46, 46);
         }
 
         html,
         body {
             margin: 0;
             padding: 0;
-            background-color: rgb(0, 255, 0);
+            background-color: var(--bg-color);
             -webkit-user-select: none;
             /* Chrome all / Safari all */
             -moz-user-select: none;
@@ -29,6 +30,7 @@
             -ms-user-select: none;
             /* IE 10+ */
             user-select: none;
+            /* overflow-y: hidden; */
         }
 
         .control-bar {
@@ -66,6 +68,7 @@
             background-color: #202020;
             border: 2px outset white;
             border-radius: 5px;
+            cursor: pointer;
         }
 
         .settings-btn:hover {
@@ -112,6 +115,44 @@
             background-color: rgb(8, 8, 8);
         }
 
+        .background-color-wrapper {
+            display: flex;
+        }
+
+        #bg-green {
+            display: flex;
+            width: 2em;
+            height: 1.5em;
+            background-color: rgb(0, 255, 0);
+            border: 2px solid black;
+        }
+
+        #bg-red {
+            display: flex;
+            width: 2em;
+            height: 1.5em;
+            background-color: rgb(255, 0, 0);
+            border: 2px solid black;
+        }
+
+        #bg-blue {
+            display: flex;
+            width: 2em;
+            height: 1.5em;
+            background-color: rgb(54, 54, 54);
+            border: 2px solid black;
+        }
+
+        #keyboard-container {
+            width: 100%;
+            display: grid;
+            grid-template-columns: 73vw 20vw;
+            align-items: flex-end;
+            gap: 2vw;
+            max-width: 95vw;
+            max-height: 95vh;
+        }
+
         /* Class Binding */
         .pressed {
             fill: var(--fill-color);
@@ -119,6 +160,15 @@
 
         svg>path {
             stroke: var(--stroke-color);
+        }
+
+        svg>circle {
+            stroke: var(--stroke-color);
+        }
+
+        #mouse-tracker {
+            stroke: var(--stroke-color);
+            fill: var(--stroke-color);
         }
 
         svg text {
@@ -152,6 +202,7 @@
 
         text {
             display: flex;
+            color: rgb(54, 54, 54);
         }
     </style>
 </head>
@@ -177,7 +228,12 @@
             <div class="font-color-picker color-picker"></div>
         </div>
     </div>
-    <!-- <iframe id="keyboard-import" src="./keyboards/floodzCustom.html"></iframe> -->
+    <div class="background-color-wrapper">
+        <span id="bg-green"></span>
+        <span id="bg-red"></span>
+        <span id="bg-blue"></span>
+    </div>
+    <div id="keyboard-container"></div>
 </body>
 
 </html>
@@ -188,39 +244,39 @@
     } = electron;
     'use strict';
 
-    //Load in keyboard
+    //For keyboard loading
+    const fs = require('fs');
+    const {
+        promisify
+    } = require('util');
+    const path = require('path');
+    const readFile = promisify(fs.readFile);
 
+    //* Keyboard loading
+    // Get selected keyboard
+    var keyboardSelection = localStorage.getItem('selectedKeyboard') || 'fullKeyboard';
 
-    //TODO Add function run at load remove all children of container
-    //Make iframe with localstorage src
-    //remove iframe
-    // function loadKeyboard(){
-    //     var iframe = document.createElement('iframe');
-    //     iframe.src = './keyboards/floodzCustom.html';
-    //     iframe.id = 'keyboard-import'
-    //     document.body.appendChild(iframe);
-    //     removeIframe();
-    // }
+    //Load keyboard css
+    var head = document.getElementsByTagName('HEAD')[0];
+    var link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.type = 'text/css';
+    link.href = `./keyboards/${keyboardSelection}.css`;
+    head.appendChild(link);
 
-    // async function removeIframe() {
-    //     var iframe = document.getElementById('keyboard-import');
-    //     var iframeContent = iframe;
-    //     console.log(iframeContent)
-    //     var iframeContent = iframeContent.contentDocument.body.children[0]
-    //     console.log(iframeContent)
-    //     // console.log(iframe.contentDocument.body.children)
-    //     // iframe.before(iframe.contentDocument.body.children[0]);
-    //     // iframe.remove();
-    // }
+    //Load keyboard html
+    var loadElements = [
+        `./keyboards/${keyboardSelection}.html`,
+        './keyboards/mouse.html'
+    ];
+    var loadElementCounter = 0;
 
-
-
-    // var keyboardIframe = document.getElementById('keyboard-import');
-    // console.log(keyboardIframe.contentDocument.body.children[0]);
-    // keyboardIframe.before(keyboardIframe.contentDocument.body.children[0]);
-    // keyboardIframe.remove();
-
-
+    function loadElement() {
+        if (loadElementCounter < loadElements.length) {
+            loadHTML(loadElements[loadElementCounter]);
+        }
+    }
+    loadElement();
 
 
     //Button tracking
@@ -229,6 +285,7 @@
     iohook.on('keydown', pushKey);
 
     function pushKey(e) {
+        console.log(e.keycode);
         let key = document.getElementById(e.keycode);
         key.classList.add("pressed");
     }
@@ -262,6 +319,12 @@
 
     iohook.start();
 
+    var getCursorPosition = require('get-cursor-position');
+    var pos = getCursorPosition.sync();
+    console.log(pos);
+    console.log('row: ' + pos.row);
+    console.log('col: ' + pos.col);
+
     //Window Handeling
     function openSettings() {
         ipcRenderer.send('open-settings');
@@ -271,14 +334,24 @@
         ipcRenderer.send('close-main-window');
     }
 
-
     //Color Picking  Done with https://www.npmjs.com/package/@simonwep/pickr/v/1.5.1
+    var root = document.documentElement;
+
     function getStoredColors() {
-        let root = document.documentElement;
         root.style.setProperty('--stroke-color', localStorage.getItem('strokeColor') || 'rgba(255,255,255,1)');
         root.style.setProperty('--fill-color', localStorage.getItem('fillColor') || 'rgba(0,0,0,1)');
         root.style.setProperty('--font-color', localStorage.getItem('fontColor') || 'rgba(255,255,255,1)');
     }
+    // Background
+    document.getElementById('bg-green').addEventListener('click', () => {
+        root.style.setProperty('--bg-color', 'rgb(0,255,0)');
+    })
+    document.getElementById('bg-red').addEventListener('click', () => {
+        root.style.setProperty('--bg-color', 'rgb(255,0,0)');
+    })
+    document.getElementById('bg-blue').addEventListener('click', () => {
+        root.style.setProperty('--bg-color', 'rgb(54, 54, 54)');
+    })
     //Stroke
     const strokePicker = Pickr.create({
         el: '.stroke-color-picker',
@@ -507,20 +580,33 @@
         getStoredColors();
     })
 
-    //Change keyboard font 
-    var textNodes = document.querySelectorAll('text');
-    for (let i = 0; i < textNodes.length; i++) {
-        textNodes[i].style.fontFamily = localStorage.getItem('selectedFont');
-        var parent = textNodes[i].parentNode;
-        let parentWidth = parent.getBoundingClientRect().width;
-        let nodeWidth = textNodes[i].getBoundingClientRect().width;
-        let sizeRatio = nodeWidth / parentWidth;
-        // textNodes[i].transform.baseVal[1].matrix.a = 1.5
-        console.log(textNodes[i].transform.scale)
-    }
-    ipcRenderer.on('load-settings', () => {
+    //Load keyboard
+    async function loadHTML(html) {
+        const render = await readFile(path.join(__dirname, html), 'utf-8');
+        const parser = new DOMParser();
+        const childrenArray = parser.parseFromString(render, 'text/html').querySelector('body').childNodes;
+        const frag = document.createDocumentFragment();
+        childrenArray.forEach(item => {
+            frag.appendChild(item);
+        });
+        document.body.childNodes[7].appendChild(frag);
+        loadElementCounter++;
+        loadElement()
+        loadFont();
+    };
+
+    //Change keyboard font
+    var textNodes;
+
+    function loadFont() {
+        textNodes = document.querySelectorAll('text');
         for (let i = 0; i < textNodes.length; i++) {
             textNodes[i].style.fontFamily = localStorage.getItem('selectedFont');
         }
+    }
+
+    ipcRenderer.on('load-settings', () => {
+        loadFont();
     })
 </script>
+<script src="mouseTracker.js"></script>

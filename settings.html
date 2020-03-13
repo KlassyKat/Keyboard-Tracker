@@ -75,16 +75,14 @@
 
         .font-select {
             width: 100%;
-            overflow: hidden;
             line-height: 2em;
             padding: 3px;
             border: 1px solid black;
-            display: flex;
-            align-items: center;
+            display: inline-block;
         }
 
         .font-select>option {
-            height: 1em;
+            position: relative;
         }
 
         .btn-wrapper {
@@ -123,7 +121,6 @@
             <div id="font-select-wrapper" onclick="loadFontFamily()">
                 <!-- select gets added here with js -->
             </div>
-            <!-- <select id="font-select" onchange="changeFont(e)"></select> -->
             <div class="btn-wrapper">
                 <button onclick="closeWindowApply()" class="submit-btn">Ok</button>
                 <button onclick="closeWindowCancel()" class="submit-btn">Cancel</button>
@@ -136,6 +133,9 @@
     const {
         ipcRenderer
     } = require('electron');
+    //Backup setting variables
+    var backupFont = null;
+    var backupStrokeWidth = null;
 
     //Select with system fonts created in font.js appended to wrapper here.
     document.getElementById('font-select-wrapper').appendChild(selectionElement);
@@ -143,24 +143,29 @@
     //Load fonts incrementally. Note: tries to load all at once in for loop and freezes
     let i = 0;
     let loadFontsGracefully;
+
     function loadFontFamily() {
         loadFontsGracefully = setInterval(loadFont, 0);
     }
+    console.log(selectionElement.options);
 
     function loadFont() {
         if (i < selectionElement.options.length) {
             selectionElement[i].style.fontFamily = selectionElement[i].innerHTML;
             i++;
         } else {
-            clearInterval(loadFontsGracefully)
+            clearInterval(loadFontsGracefully);
         }
     }
     //Register font when picked
     select.addEventListener('change', (e) => {
+        //Set backup variable
+        backupFont = backupFont || localStorage.getItem('selectedFont');
         let selectedFont = e.target.selectedOptions[0].value;
         console.log(selectedFont)
         select.style.fontFamily = selectedFont;
         localStorage.setItem('selectedFont', selectedFont);
+        ipcRenderer.send('apply-settings');
     });
 
 
@@ -181,6 +186,9 @@
     }
 
     function closeWindowCancel() {
+        //Rest storage to backups
+        localStorage.setItem('selectedFont', backupFont || localStorage.getItem('selectedFont'));
+        ipcRenderer.send('apply-settings');
         ipcRenderer.send('close-setting-window');
     }
 </script>

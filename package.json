@@ -1,7 +1,7 @@
 {
-  "name": "floodz-keyboard",
+  "name": "keyboard-tracker",
   "version": "0.8.0",
-  "description": "keyboard tracker for twitch.tv/floodz",
+  "description": "keyboard tracker for stream / video overlays",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
@@ -9,8 +9,8 @@
     "dist": "electron-builder"
   },
   "build": {
-    "appId": "floodz.keybord.tracker",
-    "productName": "Floodz Keyboard"
+    "appId": "keybord.tracker",
+    "productName": "Keyboard Tracker"
   },
   "author": "GabeAlexander",
   "license": "ISC",

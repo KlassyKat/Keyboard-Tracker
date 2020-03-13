@@ -22,17 +22,11 @@ app.on('ready', function () {
             webSecurity: false
         },
         frame: false,
-        icon: './assets/icons/win/icon.ico',
         backgroundColor: '#252525',
         minimizable: false
     });
     //Load html in
-    mainWindow.loadURL(url.format({
-        pathname: path.join(__dirname, 'keyboard_test.html'),
-        protocol: 'file:',
-        slashes: true
-    }));
-
+    mainWindow.loadFile(`${__dirname}/main.html`);
     //Quit app when closed
     mainWindow.on('closed', function () {
         app.quit();
@@ -50,7 +44,6 @@ const mainMenuTemplate = [{
     label: 'File',
     submenu: [{
         label: 'Exit',
-        accelerator: 'CmdOrCtrl+Q',
         click() {
             app.quit();
         }
@@ -68,7 +61,7 @@ if (process.env.NODE_ENV !== 'production') {
         label: 'Developer Tools',
         submenu: [{
                 label: 'Toggle Dev',
-                accelerator: process.platform == 'darwin' ? 'Command+I' : 'Ctrl+I',
+                accelerator: 'CmdOrCtrl+I',
                 click(item, focusedWindow) {
                     focusedWindow.toggleDevTools();
                 }
@@ -105,9 +98,9 @@ ipcMain.on('open-settings', () => {
     settingsWindow.once('ready-to-show', () => {
         settingsWindow.show();
     });
-    // settingsWindow.on('closed', function () {
-    //     settingsWindow = null;
-    // });
+    settingsWindow.on('closed', function () {
+        settingsWindow = null;
+    });
 });
 
 //Window handeling

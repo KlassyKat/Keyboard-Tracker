@@ -1,0 +1,36 @@
+/* mouse */
+.mouse-key-wrapper {
+    position: relative;
+    display: grid;
+    grid-template-columns: 50% 50%;
+    justify-content: center;
+    width: 100%;
+    align-items: flex-end;
+}
+
+.MMB {
+    position: absolute;
+    width: 17%;
+    left: 41.8%;
+}
+
+.mouse-bottom-wrapper {
+    display: flex;
+    position: relative;
+}
+
+#mouse-bottom {
+    width: 100%;
+}
+
+#directional-area {
+    position: absolute;
+    width: 60%;
+    left: 20%;
+    top: 10%;
+}
+
+#mouse-tracker {
+    position: absolute;
+    transform-origin: 459.952 275.539;
+}
