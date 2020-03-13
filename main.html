@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="pickr.css">
     <link rel="stylesheet" href="./keyboards/mouse.css">
     <script src="pickr.js"></script>
+    <script src="shortcutMode.js"></script>
     <title>Keyboard Tracker</title>
     <style>
         @import url(https://fonts.googleapis.com/css?family=Montserrat:100,100italic,200,200italic,300,300italic,regular,italic,500,500italic,600,600italic,700,700italic,800,800italic,900,900italic);
@@ -30,7 +31,7 @@
             -ms-user-select: none;
             /* IE 10+ */
             user-select: none;
-            /* overflow-y: hidden; */
+            overflow-y: hidden;
         }
 
         .control-bar {
@@ -265,13 +266,13 @@
     head.appendChild(link);
 
     //Load keyboard html
-    var loadElements = [
-        `./keyboards/${keyboardSelection}.html`,
-        './keyboards/mouse.html'
-    ];
     var loadElementCounter = 0;
-
     function loadElement() {
+        keyboardSelection = localStorage.getItem('selectedKeyboard') || 'fullKeyboard';
+        var loadElements = [
+            `./keyboards/${keyboardSelection}.html`,
+            './keyboards/mouse.html'
+        ];
         if (loadElementCounter < loadElements.length) {
             loadHTML(loadElements[loadElementCounter]);
         }
@@ -285,14 +286,20 @@
     iohook.on('keydown', pushKey);
 
     function pushKey(e) {
+        if(keyboardSelection == 'shortcutOnly') {
+            shortcutDisplay(e);
+        }
         console.log(e.keycode);
         let key = document.getElementById(e.keycode);
         key.classList.add("pressed");
     }
 
-    iohook.on('keyup', releaseKey)
+    iohook.on('keyup', releaseKey);
 
     function releaseKey(e) {
+        if(keyboardSelection == 'shortcutOnly') {
+            shortcutHide(e);
+        }
         let key = document.getElementById(e.keycode);
         key && key.classList.remove("pressed");
     }
@@ -319,11 +326,39 @@
 
     iohook.start();
 
-    // var getCursorPosition = require('get-cursor-position');
-    // var pos = getCursorPosition.sync();
-    // console.log(pos);
-    // console.log('row: ' + pos.row);
-    // console.log('col: ' + pos.col);
+    //Mouse Tracking
+    localStorage.setItem('mouseTrack', true);
+    if (localStorage.getItem('mouseTrack') == 'true') {
+        ipcRenderer.send('track-mouse');
+    }
+
+    let prevMouseX = 0;
+    let prevMouseY = 0;
+    ipcRenderer.on('mouse-pos', (event, data) => {
+        let {
+            x,
+            y
+        } = data.pos;
+        let angle = calcAngleDegrees(x - prevMouseX, y - prevMouseY);
+        document.getElementById('mouse-arrow').style.transform = `rotate(${angle}deg)`;
+        getDistance(x - prevMouseX, y - prevMouseY);
+        prevMouseX = x;
+        prevMouseY = y;
+    });
+
+    function calcAngleDegrees(x, y) {
+        return Math.atan2(y, x) * 180 / Math.PI;
+    }
+
+    function getDistance(x, y) {
+        let distance = Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
+        let range = distance / 50 <= 1 ? distance / 50 : 1;
+        range = range * 200;
+        document.getElementById('mouse-arrow').querySelectorAll('path')[0].setAttribute('d',
+        `M-2.541 103.05 h${range}`);
+        document.getElementById('mouse-arrow').querySelectorAll('path')[1].setAttribute('d',
+            `M${range} 12.5 l-21.976 10.95 v-22 l21.976 11z`);
+    }
 
     //Window Handeling
     function openSettings() {
@@ -607,6 +642,5 @@
 
     ipcRenderer.on('load-settings', () => {
         loadFont();
-    })
+    });
 </script>
-<script src="mouseTracker.js"></script>

@@ -1,0 +1,12 @@
+.shortcut-only {
+    display: flex;
+    position: relative;
+    height: 80vh;
+    align-items: flex-end;
+}
+
+.shortcut-only > svg  {
+    display: none;
+    width: 15%;
+    position: absolute;
+}

@@ -5,7 +5,8 @@ const {
     app,
     BrowserWindow,
     Menu,
-    ipcMain
+    ipcMain,
+    screen
 } = electron;
 let mainWindow;
 let settingsWindow;
@@ -103,6 +104,21 @@ ipcMain.on('open-settings', () => {
     });
 });
 
+
+//Mouse Tracking
+let mouseCounter = true;
+let mouseTracking;
+ipcMain.on('track-mouse', () => {
+    if(mouseCounter) {
+        mouseTracking = setInterval(mouseTracker, 30);
+    }
+    mouseCounter = false;
+})
+
+function mouseTracker() {
+    mainWindow.webContents.send('mouse-pos', {pos: screen.getCursorScreenPoint()});
+}
+
 //Window handeling
 ipcMain.on('open-settings', () => {
     settingsWindow.show();
@@ -116,7 +132,12 @@ ipcMain.on('apply-settings', () => {
     mainWindow.webContents.send('load-settings');
 });
 
+ipcMain.on('reload-main', () => {
+    mainWindow.reload();
+})
+
 //Close Main Window
 ipcMain.on('close-main-window', function () {
+    clearInterval(mouseTracking);
     mainWindow.close();
 });

@@ -30,7 +30,17 @@
     top: 10%;
 }
 
-#mouse-tracker {
+#mouse-arrow {
     position: absolute;
-    transform-origin: 459.952 275.539;
+    width: 28%;
+    top: 48.3%;
+    left: 50%;
+    fill: white;
+    stroke: white;
+    transform-origin: left;
+}
+
+#mouse-arrow * {
+    fill: var(--stroke-color);
+    stroke: var(--stroke-color);
 }
