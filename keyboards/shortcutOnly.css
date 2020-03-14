@@ -7,6 +7,6 @@
 
 .shortcut-only > svg  {
     display: none;
-    width: 15%;
+    height: 10vh;
     position: absolute;
 }

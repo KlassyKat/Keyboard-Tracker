@@ -9,7 +9,6 @@ let keyState = 0;
 //6: Alt + Shift 
 //7: Shift
 let shortcutKeysCounter = 0;
-let keyPressedCounter = 0;
 let keysPressed = [];
 
 function shortcutDisplay(e) {
@@ -32,9 +31,8 @@ function shortcutDisplay(e) {
         }
         keyStateStyling(keyState);
         document.getElementById(29).parentElement.style.display = 'block';
-    }
-    //Alt Key
-    if (e.keycode == 56) {
+    } else if (e.keycode == 56) { //Alt key
+        console.log('?')
         switch (keyState) {
             case 0:
                 keyState = 5;
@@ -51,10 +49,7 @@ function shortcutDisplay(e) {
         }
         keyStateStyling(keyState);
         document.getElementById(e.keycode).parentElement.style.display = 'block';
-    }
-
-    //Shift Key
-    if (e.keycode == 42) {
+    } else if (e.keycode == 42) { //Shift Key
         switch (keyState) {
             case 0:
                 keyState = 7;
@@ -71,15 +66,12 @@ function shortcutDisplay(e) {
         }
         keyStateStyling(keyState);
         document.getElementById(e.keycode).parentElement.style.display = 'block';
-    }
-    //All other keys
-    let notCommandKey = true;
-    notCommandKey = e.keycode == 29 ? false : e.keycode == 56 ? false : e.keycode == 42 ? false : true;
-    if (notCommandKey && keyState !== 0 && !keysPressed.find((key)=>{return key == e.keycode })) {
+    } else if(keyState !== 0){
         document.getElementById(e.keycode).parentElement.style.display = 'block';
-        document.getElementById(e.keycode).parentElement.style.left = `${(shortcutKeysCounter + keyPressedCounter) * 17}%`;
-        keysPressed.push(e.keycode);
-        keyPressedCounter += 1;
+        if(keysPressed.indexOf(e.keycode) == -1) {
+            keysPressed.push(e.keycode);
+            changePos();
+        }
     }
 }
 
@@ -103,11 +95,7 @@ function shortcutHide(e) {
         }
         keyStateStyling(keyState);
         document.getElementById(29).parentElement.style.display = 'none';
-        changeLeft();
-    }
-
-    //Alt
-    if (e.keycode == 56) {
+    } else if (e.keycode == 56) { //Alt
         switch (keyState) {
             case 2:
                 keyState = 1;
@@ -124,10 +112,7 @@ function shortcutHide(e) {
         }
         keyStateStyling(keyState);
         document.getElementById(e.keycode).parentElement.style.display = 'none';
-        changeLeft();
-    }
-    //Shift
-    if (e.keycode == 42) {
+    } else if (e.keycode == 42) { //Shift
         switch (keyState) {
             case 3:
                 keyState = 1;
@@ -144,26 +129,12 @@ function shortcutHide(e) {
         }
         keyStateStyling(keyState);
         document.getElementById(e.keycode).parentElement.style.display = 'none';
-        changeLeft();
-    }
-
-    //All other keys
-    let notCommandKey = true;
-    notCommandKey = e.keycode == 29 ? false : e.keycode == 56 ? false : e.keycode == 42 ? false : true;
-    if (notCommandKey) {
+    } else {
         document.getElementById(e.keycode).parentElement.style.display = 'none';
-        document.getElementById(e.keycode).parentElement.style.left = 0;
         keysPressed.splice(keysPressed.indexOf(e.keycode), 1);
-        keyPressedCounter -= 1;
+        changePos();
     }
-}
 
-function changeLeft() {
-    for(key in keysPressed) {
-        console.log(key);
-        // let currentLeft = parseInt(document.getElementById(keysPressed[key]).parentElement.style.left, 10);
-        document.getElementById(keysPressed[key]).parentElement.style.left = `${(shortcutKeysCounter + key) * 17}%`;
-    }
 }
 
 
@@ -177,6 +148,10 @@ function keyStateStyling(state) {
             altKey.style.left = '0';
             shiftKey.style.left = '0';
             shortcutKeysCounter = 0;
+            //Hide all keys if no shortcut key pressed
+            for(key of keysPressed) {
+                document.getElementById(key).parentElement.style.display = 'none';
+            }
             break;
         case 1:
             ctrlKey.style.left = '0';
@@ -220,5 +195,19 @@ function keyStateStyling(state) {
             shiftKey.style.left = '0';
             shortcutKeysCounter = 1;
             break;
+    }
+    changePos();
+}
+
+function changePos() {
+    console.log(keysPressed);
+    let ctrlKeyPos = document.getElementById(29).parentElement.getBoundingClientRect().right;
+    let altKeyPos = document.getElementById(56).parentElement.getBoundingClientRect().right;
+    let shiftKeyPos = document.getElementById(42).parentElement.getBoundingClientRect().right;
+    let shortcutKeysRightPos = Math.max(ctrlKeyPos, altKeyPos, shiftKeyPos);
+    let totalWidth = 0;
+    for(key in keysPressed) {
+        document.getElementById(keysPressed[key]).parentElement.style.left =  shortcutKeysRightPos + totalWidth + 'px';
+        totalWidth += document.getElementById(keysPressed[key]).parentElement.getBoundingClientRect().width;
     }
 }
