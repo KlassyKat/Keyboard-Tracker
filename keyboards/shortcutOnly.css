@@ -10,3 +10,36 @@
     height: 10vh;
     position: absolute;
 }
+
+.animation {
+    opacity: 0;
+    animation: fadeout 3s ease-out;
+    transition: all 0.3s ease-in-out;
+}
+.animation-0 {
+    bottom: 0vh;
+}
+.animation-1 {
+    bottom: 11vh;
+}
+.animation-2 {
+    bottom: 22vh;
+}
+.animation-3 {
+    bottom: 33vh;
+}
+.animation-4 {
+    bottom: 44vh;
+}
+
+@keyframes fadeout {
+    0% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+    }
+}
