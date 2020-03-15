@@ -1,0 +1,43 @@
+<div class="mouse">
+    <svg class="mouse-svg" viewBox="0 0 115 180">
+        <path id="RMB" d="
+            m 59 1
+            h 32
+            a 8 8 0 0 1 8 8
+            l 15 62
+            a 8 8 0 0 1 -8 8
+            h -30
+            a 8 8 0 0 1 -8 -8
+            v -20
+            a 8 8 0 0 0 -8 -8
+            z" stroke-width="2" stroke-linejoin="round" fill="none" stroke="#000" />
+        <path id="LMB" d="
+            m 55 1
+            h -30
+            a 8 8 0 0 0 -8 8
+            l -15 62
+            a 8 8 0 0 0 8 8
+            h 30
+            a 8 8 0 0 0 8 -8
+            v -20
+            a 8 8 0 0 1 8 -8
+            z" stroke-width="2" stroke-linejoin="round" fill="none" stroke="#000" />
+        <defs>
+            <linearGradient id="wheel-up" x1="0%" y1="0%" x2="0%" y2="50%">
+                <stop offset="0%" style="stop-color:var(--fill-color);stop-opacity:1" />
+                <stop offset="100%" style="stop-color:rgb(0, 0, 0);stop-opacity:0" />
+            </linearGradient>
+            <linearGradient id="wheel-down" x1="0%" y1="100%" x2="0%" y2="50%">
+                <stop offset="0%" style="stop-color:var(--fill-color);stop-opacity:1" />
+                <stop offset="100%" style="stop-color:rgb(0, 0, 0);stop-opacity:0" />
+            </linearGradient>
+        </defs>
+        <path id="MMB" d="
+            m 51 53
+            v 18.5
+            c 0 10 14 10 14 0
+            v -18.5
+            c 0 -10 -14 -10 -14 0
+            z" stroke-width="2" stroke-linejoin="round" fill="none" stroke="#000" />
+    </svg>
+</div>

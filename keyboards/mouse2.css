@@ -1,0 +1,7 @@
+.mouse {
+    width: 100%;
+}
+
+.mouse > svg {
+    width: 100%;
+}

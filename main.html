@@ -5,7 +5,7 @@
     <!-- import keyboard styles -->
     <!-- 'classic' theme -->
     <link rel="stylesheet" href="pickr.css">
-    <link rel="stylesheet" href="./keyboards/mouse.css">
+    <link rel="stylesheet" href="./keyboards/mouse2.css">
     <script src="pickr.js"></script>
     <script src="shortcutMode.js"></script>
     <title>Keyboard Tracker</title>
@@ -118,6 +118,7 @@
 
         .background-color-wrapper {
             display: flex;
+            padding-bottom: 2vh;
         }
 
         #bg-green {
@@ -157,6 +158,14 @@
         /* Class Binding */
         .pressed {
             fill: var(--fill-color);
+        }
+
+        .scroll-up {
+            fill: url('#wheel-up');
+        }
+
+        .scroll-down {
+            fill: url('#wheel-down');
         }
 
         svg>path {
@@ -271,7 +280,7 @@
         keyboardSelection = localStorage.getItem('selectedKeyboard') || 'fullKeyboard';
         var loadElements = [
             `./keyboards/${keyboardSelection}.html`,
-            './keyboards/mouse.html'
+            './keyboards/mouse2.html'
         ];
         if (loadElementCounter < loadElements.length) {
             loadHTML(loadElements[loadElementCounter]);
@@ -323,6 +332,19 @@
             document.getElementById('MMB').classList.remove("pressed");
         }
     })
+
+    iohook.on('mousewheel', (e) => {
+        if(e.rotation == -1) {
+            document.getElementById('MMB').classList.add("scroll-up");
+            setTimeout(()=>{document.getElementById('MMB').classList.remove("scroll-up")}, 90);
+        }
+        if(e.rotation == 1) {
+            document.getElementById('MMB').classList.add("scroll-down");
+            setTimeout(()=>{document.getElementById('MMB').classList.remove("scroll-down")}, 90);
+        }
+    })
+
+
 
     iohook.start();
 

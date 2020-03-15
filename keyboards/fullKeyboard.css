@@ -2,7 +2,7 @@
     width: 100%;
     max-height: 94vh;
     display: grid;
-    grid-template-columns: 1fr auto auto;
+    grid-template-columns: 1fr;
 }
 .core-keyboard {
     display: grid;
@@ -43,4 +43,8 @@ svg {
     display: flex;
     justify-content: center;
     align-items: center;
+}
+
+svg > text {
+    max-width: 100%;
 }

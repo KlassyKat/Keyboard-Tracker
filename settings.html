@@ -139,6 +139,7 @@
                 <option value="fullKeyboard">Full Keyboard</option>
                 <option value="floodzCustom">Floodz Custom</option>
                 <option value="shortcutOnly">Shortcut Mode</option>
+                <option value="fps">FPS</option>
             </select>
             <div class="btn-wrapper">
                 <button onclick="closeWindowApply()" class="submit-btn">Ok</button>
@@ -156,6 +157,7 @@
     var backupFont = null;
     var backupStrokeWidth = null;
     var backupKeyboard = null;
+    var backupFontSize = null;
 
     //Select with system fonts created in font.js appended to wrapper here.
     document.getElementById('font-select-wrapper').appendChild(selectionElement);
@@ -205,6 +207,7 @@
 
 
     //Font Size slider
+    backupFontSize = backupFontSize || localStorage.getItem('fontSize');
     var slider = document.getElementById("font-size-input");
     slider.value = localStorage.getItem('fontSize') || 1;
     var sliderValueDisplay = document.getElementById("font-size-value");
@@ -214,6 +217,7 @@
     slider.oninput = function () {
         sliderValueDisplay.innerHTML = this.value;
         localStorage.setItem('fontSize', slider.value);
+        ipcRenderer.send('apply-settings');
     }
 
     //Close Window
@@ -229,6 +233,7 @@
             ipcRenderer.send('reload-main');
         }
         localStorage.setItem('selectedKeyboard', backupKeyboard || localStorage.getItem('selectedKeyboard'));
+        localStorage.setItem('fontSize', backupFontSize || localStorage.getItem('fontSize'));
         ipcRenderer.send('apply-settings');
         ipcRenderer.send('close-setting-window');
     }
