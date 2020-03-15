@@ -635,8 +635,10 @@
 
     function loadFont() {
         textNodes = document.querySelectorAll('text');
+        let fontSize = 0.8 * localStorage.getItem('fontSize'); //* Will need to changes this if we make any keys have different font sizes
         for (let i = 0; i < textNodes.length; i++) {
             textNodes[i].style.fontFamily = localStorage.getItem('selectedFont');
+            textNodes[i].style.fontSize = fontSize + 'em';
         }
     }
 

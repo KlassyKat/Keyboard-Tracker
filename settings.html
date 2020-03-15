@@ -128,10 +128,10 @@
     </nav>
     <div class="container">
         <div class="setting-wrapper" id="stroke-width-wrapper">
-            <label for="stroke-width-input" class="stroke-label">Stroke Width:</label>
-            <input class="slider" type="range" name="stroke-width-input" id="stroke-width-input" step="0.1" min="0.5"
+            <label for="font-size-input" class="font-label">Font Size:</label>
+            <input class="slider" type="range" name="font-size-input" id="font-size-input" step="0.1" min="0.3"
                 max="5">
-            <span id="stroke-width-value"></span>
+            <span id="font-size-value"></span>
             <div id="font-select-wrapper" onclick="loadFontFamily()">
                 <!-- select gets added here with js -->
             </div>
@@ -204,14 +204,16 @@
     });
 
 
-    //Stroke slider
-    var slider = document.getElementById("stroke-width-input");
-    var sliderValueDisplay = document.getElementById("stroke-width-value");
+    //Font Size slider
+    var slider = document.getElementById("font-size-input");
+    slider.value = localStorage.getItem('fontSize') || 1;
+    var sliderValueDisplay = document.getElementById("font-size-value");
     sliderValueDisplay.innerHTML = slider.value; // Display the default slider value
 
     // Update the current slider value (each time you drag the slider handle)
     slider.oninput = function () {
         sliderValueDisplay.innerHTML = this.value;
+        localStorage.setItem('fontSize', slider.value);
     }
 
     //Close Window

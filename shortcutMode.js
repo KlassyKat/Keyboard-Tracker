@@ -13,6 +13,7 @@ let keysPressed = [];
 let animationRun = false;
 
 function shortcutDisplay(e) {
+    console.log(e.keycode);
     if(keyState !== 0) {
         animationRun = true;
     }
@@ -265,9 +266,7 @@ function appendNode(elements) {
         document.getElementById('shortcut-only').appendChild(currentElement); //*
     }
     let animationElements = document.querySelectorAll('.animation');
-    console.log(animationElements)
     for (item of animationElements) {
-        console.log(item)
         if (item.classList.contains('animation-4')) {
             item.remove();
         } else if (item.classList.contains('animation-3')) {
@@ -279,11 +278,9 @@ function appendNode(elements) {
         } else if (item.classList.contains('animation-1')) {
             item.classList.remove('animation-1');
             item.classList.add('animation-2');
-            console.log('animate2')
         } else if (item.classList.contains('animation-0')) {
             item.classList.remove('animation-0');
             item.classList.add('animation-1');
-            console.log('animate')
         }
     }
 }

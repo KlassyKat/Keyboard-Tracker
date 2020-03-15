@@ -6,8 +6,11 @@
 }
 .core-keyboard {
     display: grid;
+    gap: 0.3vh;
     grid-template-rows: repeat(5, 20%);
+    padding: 1.5vh;
 }
+
 
 .core-keyboard > .row-1 {
     display: grid;
