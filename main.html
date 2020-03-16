@@ -149,7 +149,7 @@
             width: 100%;
             display: grid;
             grid-template-columns: 73vw 20vw;
-            align-items: flex-end;
+            align-items: flex-start;
             gap: 2vw;
             max-width: 95vw;
             max-height: 95vh;
@@ -276,6 +276,7 @@
 
     //Load keyboard html
     var loadElementCounter = 0;
+
     function loadElement() {
         keyboardSelection = localStorage.getItem('selectedKeyboard') || 'fullKeyboard';
         var loadElements = [
@@ -295,7 +296,7 @@
     iohook.on('keydown', pushKey);
 
     function pushKey(e) {
-        if(keyboardSelection == 'shortcutOnly') {
+        if (keyboardSelection == 'shortcutOnly') {
             shortcutDisplay(e);
         }
         console.log(e.keycode);
@@ -306,7 +307,7 @@
     iohook.on('keyup', releaseKey);
 
     function releaseKey(e) {
-        if(keyboardSelection == 'shortcutOnly') {
+        if (keyboardSelection == 'shortcutOnly') {
             shortcutHide(e);
         }
         let key = document.getElementById(e.keycode);
@@ -334,13 +335,17 @@
     })
 
     iohook.on('mousewheel', (e) => {
-        if(e.rotation == -1) {
+        if (e.rotation == -1) {
             document.getElementById('MMB').classList.add("scroll-up");
-            setTimeout(()=>{document.getElementById('MMB').classList.remove("scroll-up")}, 90);
+            setTimeout(() => {
+                document.getElementById('MMB').classList.remove("scroll-up")
+            }, 90);
         }
-        if(e.rotation == 1) {
+        if (e.rotation == 1) {
             document.getElementById('MMB').classList.add("scroll-down");
-            setTimeout(()=>{document.getElementById('MMB').classList.remove("scroll-down")}, 90);
+            setTimeout(() => {
+                document.getElementById('MMB').classList.remove("scroll-down")
+            }, 90);
         }
     })
 
@@ -374,12 +379,17 @@
 
     function getDistance(x, y) {
         let distance = Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
+        console.log(distance);
         let range = distance / 50 <= 1 ? distance / 50 : 1;
-        range = range * 200;
+        range = range * 35;
         document.getElementById('mouse-arrow').querySelectorAll('path')[0].setAttribute('d',
-        `M-2.541 103.05 h${range}`);
+            `m 0 4 h${range}`);
         document.getElementById('mouse-arrow').querySelectorAll('path')[1].setAttribute('d',
-            `M${range} 12.5 l-21.976 10.95 v-22 l21.976 11z`);
+            `m${range} 4
+            v -3
+            l 4 3
+            l -4 3
+            z`);
     }
 
     //Window Handeling
@@ -657,7 +667,8 @@
 
     function loadFont() {
         textNodes = document.querySelectorAll('text');
-        let fontSize = 0.8 * localStorage.getItem('fontSize'); //* Will need to changes this if we make any keys have different font sizes
+        let fontSize = 0.8 * localStorage.getItem(
+        'fontSize'); //* Will need to changes this if we make any keys have different font sizes
         for (let i = 0; i < textNodes.length; i++) {
             textNodes[i].style.fontFamily = localStorage.getItem('selectedFont');
             textNodes[i].style.fontSize = fontSize + 'em';
