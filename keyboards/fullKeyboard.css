@@ -1,16 +1,16 @@
 .container {
-    width: 100%;
-    max-height: 94vh;
-    display: grid;
-    grid-template-columns: 1fr;
+    width: 73%;
+    padding-right: 2%;
 }
 .core-keyboard {
     display: grid;
     gap: 0.3vh;
     grid-template-rows: repeat(5, 20%);
-    padding: 1.5vh;
 }
 
+.core-keyboard > svg {
+    display: flex;
+}
 
 .core-keyboard > .row-1 {
     display: grid;
@@ -31,20 +31,4 @@
 .core-keyboard > .row-5 {
     display: grid;
     grid-template-columns: 1.5fr 1fr 1.5fr 6fr 1.5fr 1fr 1fr 1.5fr;
-}
-
-/* keys */
-#space {
-    grid-column: 1/4;
-    width: 100%;
-}
-
-svg {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-svg > text {
-    max-width: 100%;
 }

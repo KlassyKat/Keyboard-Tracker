@@ -1,6 +1,7 @@
 const electron = require('electron');
 const url = require('url');
 const path = require('path');
+const mousePos = require('mouse-position');
 const {
     app,
     BrowserWindow,

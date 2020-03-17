@@ -18,6 +18,7 @@
     "@simonwep/pickr": "^1.5.1",
     "font-list": "^1.2.6",
     "iohook": "^0.6.5",
+    "mouse-position": "^2.1.0",
     "node-localstorage": "^2.1.5"
   },
   "devDependencies": {

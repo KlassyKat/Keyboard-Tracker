@@ -1,6 +1,5 @@
 .mouse {
-    display: flex;
-    max-height: 94vh;
+    width: 25%;
     position: relative;
 }
 

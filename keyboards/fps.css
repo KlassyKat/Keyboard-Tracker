@@ -1,44 +1,38 @@
 .container {
-    width: 100%;
-    max-height: 94vh;
-    display: flex;
-    justify-content: flex-end;
-}
-
-.inner-wrapper svg {
-    height: 13.5vh;
+    width: 73%;
+    padding-right: 2%;
 }
 
 .inner-wrapper {
     display: grid;
-    gap: 0.3vh;
-    grid-template-rows: repeat(4, auto);
-    padding: 1.5vh;
+    gap: 0.5vh;
+    grid-template-rows: repeat(4, 25%);
 }
 
-.row-1 {
-    padding-left: 5vh;
+.inner-wrapper > svg {
+    display: flex;
+}
+
+
+.inner-wrapper > .row-1 {
     display: grid;
     gap: 0.5vh;
-    grid-template-columns: repeat(5, 16vh);
+    grid-template-columns: 1.3fr repeat(5, 1fr) 1.7fr;
 }
 
-.row-2 {
-    padding-left: 10vh;
+.inner-wrapper > .row-2 {
     display: grid;
     gap: 0.5vh;
-    grid-template-columns: repeat(4, 16vh);
+    grid-template-columns: 1.7fr repeat(4, 1fr) 2.3fr;
 }
 
-.row-3 {
-    padding-left: 12vh;
+.inner-wrapper > .row-3 {
     display: grid;
     gap: 0.5vh;
-    grid-template-columns: repeat(5, 16vh);
+    grid-template-columns: 1.9fr repeat(5, 1fr) 1.1fr;
 }
 
-.row-4 {
+.inner-wrapper > .row-4 {
     display: grid;
-    /* gap: 0.5vh; */
-    grid-template-columns: 24vh 32vh 48vh;
+    grid-template-columns: 1.8fr 2.5fr 3.7fr;
 }

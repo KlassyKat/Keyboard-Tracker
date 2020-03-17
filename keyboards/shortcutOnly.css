@@ -1,7 +1,8 @@
 .shortcut-only {
     display: flex;
+    width: 73%;
     position: relative;
-    height: 80vh;
+    height: 73vh;
     align-items: flex-end;
 }
 
