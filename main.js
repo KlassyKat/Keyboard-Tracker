@@ -1,7 +1,8 @@
 const electron = require('electron');
 const url = require('url');
 const path = require('path');
-const mousePos = require('mouse-position');
+const windowStateKeeper = require('electron-window-state');
+// const mousePos = require('mouse-position');
 const {
     app,
     BrowserWindow,
@@ -11,18 +12,29 @@ const {
 } = electron;
 let mainWindow;
 let settingsWindow;
-
+let mainWindowState
+let maximized;
 //Disable hardware acceleration to allow for capture in obs
 app.disableHardwareAcceleration();
 
 //Listen for app to ready
 app.on('ready', function () {
+    //Window Manager
+    mainWindowState = windowStateKeeper({
+        maximize: true
+    });
     //Create window
     mainWindow = new BrowserWindow({
         webPreferences: {
             nodeIntegration: true,
             webSecurity: false
         },
+        x: mainWindowState.x,
+        y: mainWindowState.y,
+        width: mainWindowState.width,
+        height: mainWindowState.height,
+        minWidth: 500,
+        minHeight: 300,
         frame: false,
         backgroundColor: '#252525',
         minimizable: false
@@ -38,6 +50,15 @@ app.on('ready', function () {
     const mainMenu = Menu.buildFromTemplate(mainMenuTemplate);
     //Insert menu
     Menu.setApplicationMenu(mainMenu);
+    //Window state listener
+    mainWindowState.manage(mainWindow);
+    //Maximize Window
+    mainWindow.on('maximize', () => {
+        maximized = true;
+    });
+    mainWindow.on('unmaximize', () => {
+        maximized = false;
+    });
 });
 
 
@@ -110,14 +131,16 @@ ipcMain.on('open-settings', () => {
 let mouseCounter = true;
 let mouseTracking;
 ipcMain.on('track-mouse', () => {
-    if(mouseCounter) {
+    if (mouseCounter) {
         mouseTracking = setInterval(mouseTracker, 30);
     }
     mouseCounter = false;
 })
 
 function mouseTracker() {
-    mainWindow.webContents.send('mouse-pos', {pos: screen.getCursorScreenPoint()});
+    mainWindow.webContents.send('mouse-pos', {
+        pos: screen.getCursorScreenPoint()
+    });
 }
 
 //Window handeling
@@ -137,6 +160,15 @@ ipcMain.on('reload-main', () => {
     mainWindow.reload();
 })
 
+//Maximize Main Window
+ipcMain.on('maximize-main-window', function () {
+    if(maximized) {
+        mainWindow.unmaximize();
+    } else {
+        mainWindow.maximize();
+    }
+    mainWindow.webContents.send('size-mouse');
+});
 //Close Main Window
 ipcMain.on('close-main-window', function () {
     clearInterval(mouseTracking);

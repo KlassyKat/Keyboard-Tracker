@@ -18,22 +18,22 @@
 .inner-wrapper > .row-1 {
     display: grid;
     gap: 0.5vh;
-    grid-template-columns: 1.3fr repeat(5, 1fr) 1.7fr;
+    grid-template-columns: 1.3fr repeat(7, 1fr) 1.7fr;
 }
 
 .inner-wrapper > .row-2 {
     display: grid;
     gap: 0.5vh;
-    grid-template-columns: 1.7fr repeat(4, 1fr) 2.3fr;
+    grid-template-columns: 1.7fr repeat(4, 1fr) 4.3fr;
 }
 
 .inner-wrapper > .row-3 {
     display: grid;
     gap: 0.5vh;
-    grid-template-columns: 1.9fr repeat(5, 1fr) 1.1fr;
+    grid-template-columns: 1.9fr repeat(5, 1fr) 3.1fr;
 }
 
 .inner-wrapper > .row-4 {
     display: grid;
-    grid-template-columns: 1.8fr 2.5fr 3.7fr;
+    grid-template-columns: 1.8fr 2.5fr 5.7fr;
 }

@@ -16,6 +16,7 @@
   "license": "ISC",
   "dependencies": {
     "@simonwep/pickr": "^1.5.1",
+    "electron-window-state": "^5.0.3",
     "font-list": "^1.2.6",
     "iohook": "^0.6.5",
     "mouse-position": "^2.1.0",

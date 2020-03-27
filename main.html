@@ -38,7 +38,7 @@
 
         .control-bar {
             display: grid;
-            grid-template-columns: auto 1fr 40px;
+            grid-template-columns: auto 1fr 40px 40px;
             background-color: rgb(37, 37, 37);
             -webkit-app-region: drag;
         }
@@ -108,13 +108,23 @@
             border: 2px inset black;
         }
 
-        .close-window {
+        .maximize-window {
             grid-column: 3;
             width: 40px;
             -webkit-app-region: no-drag;
         }
 
+        .close-window {
+            grid-column: 4;
+            width: 40px;
+            -webkit-app-region: no-drag;
+        }
+
         .close-window:hover {
+            background-color: rgb(8, 8, 8);
+        }
+
+        .maximize-window:hover {
             background-color: rgb(8, 8, 8);
         }
 
@@ -148,6 +158,7 @@
         }
 
         #keyboard-container {
+            width: 100%;
             display: flex;
             max-height: 73vh;
         }
@@ -217,11 +228,31 @@
 <body onload="getStoredColors()" onresize="mouseSize()">
     <nav class="control-bar">
         <h2>Keyboard<span>Tracker</span></h2>
-        <span onclick="closeWindow()" class="close-window"><svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"
-                fill-rule="evenodd" clip-rule="evenodd" stroke-linejoin="round" stroke-miterlimit="2">
+        <span onclick="maximizeWindow()" class="maximize-window">
+            <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" 
+                stroke-linejoin="miter" stroke-miterlimit="2" stroke-linecap="butt">
+                <path d="M185,165
+                h -171
+                v -131
+                h 171
+                v 131
+                Z
+                M162,72
+                h -125
+                v 76
+                h 125
+                v -76
+                Z" fill="white"/>
+            </svg>
+        </span>
+        <span onclick="closeWindow()" class="close-window">
+            <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" clip-rule="evenodd"
+                stroke-linejoin="round" stroke-miterlimit="2">
                 <path
                     d="M140.5 40.499l19 19.002L119 100l40.5 40.498-19 19.002L100 119l-40.5 40.5-19-19.002L81 100.001l-40.5-40.5 19-19.002 40.5 40.5 40.5-40.5z"
-                    fill="#fff" /></svg></span>
+                    fill="#fff" />
+            </svg>
+        </span>
     </nav>
     <div class="settings-wrapper">
         <button onclick="openSettings()" class="settings-btn">Settings</button>
@@ -253,7 +284,7 @@
 
     //Load defaults
     let fontSizeDefault = localStorage.getItem('fontSize') || 1;
-    localStorage.setItem('fontSize',fontSizeDefault);    
+    localStorage.setItem('fontSize', fontSizeDefault);
     let selectedFontDefault = localStorage.getItem('selectedFont') || 'Roboto';
     localStorage.setItem('selectedFont', selectedFontDefault);
     let selectedKeyboard = localStorage.getItem('selectedKeyboard') || 'fullKeyboard';
@@ -278,6 +309,7 @@
 
     //Load keyboard html
     var loadElementCounter = 0;
+
     function loadElement() {
         var loadElements = [
             `./keyboards/${selectedKeyboard}.html`,
@@ -398,6 +430,9 @@
 
     function closeWindow() {
         ipcRenderer.send('close-main-window');
+    }
+    function maximizeWindow() {
+        ipcRenderer.send('maximize-main-window');
     }
 
     //Color Picking  Done with https://www.npmjs.com/package/@simonwep/pickr/v/1.5.1
@@ -656,12 +691,16 @@
         //Size mouse: from mouseSize.js
         mouseSize();
     };
+    ipcRenderer.on('size-mouse', () => {
+        mouseSize();
+    })
     //Change keyboard font
     var textNodes;
 
     function loadFont() {
         textNodes = document.querySelectorAll('text');
-        let fontSize = 0.8 * localStorage.getItem('fontSize'); //* Will need to changes this if we make any keys have different font sizes
+        let fontSize = 0.8 * localStorage.getItem(
+            'fontSize'); //* Will need to changes this if we make any keys have different font sizes
         for (let i = 0; i < textNodes.length; i++) {
             textNodes[i].style.fontFamily = localStorage.getItem('selectedFont');
             textNodes[i].style.fontSize = fontSize + 'em';
