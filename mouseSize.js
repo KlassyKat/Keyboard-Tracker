@@ -25,4 +25,15 @@ function mouseSize() {
     let arrowY = (mouseAnchor.y - mouseProps.y) - (mouseAnchor.height/4);
     mouseArrow.style.left = arrowX;
     mouseArrow.style.top = arrowY;
+
+    //Check tracker on
+    if(localStorage.getItem('mouseTrackerOn') == 'true') {
+        document.getElementById('mouse-tracker-container').style.opacity = 1;
+        document.getElementById('mouse-tracker-anchor').style.opacity = 1;
+        document.getElementById('mouse-arrow').style.opacity = 1;
+    } else {
+        document.getElementById('mouse-tracker-container').style.opacity = 0;
+        document.getElementById('mouse-tracker-anchor').style.opacity = 0;
+        document.getElementById('mouse-arrow').style.opacity = 0;
+    }
 }

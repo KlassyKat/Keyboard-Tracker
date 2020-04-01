@@ -1,42 +1,17 @@
-/* mouse */
-.mouse-key-wrapper {
-    position: relative;
-    display: grid;
-    grid-template-columns: 50% 50%;
-    justify-content: center;
-    width: 100%;
-    align-items: flex-end;
-}
-
-.MMB {
-    position: absolute;
-    width: 17%;
-    left: 41.8%;
-}
-
-.mouse-bottom-wrapper {
-    display: flex;
+.mouse {
+    width: 0;
     position: relative;
 }
 
-#mouse-bottom {
+.mouse-svg {
     width: 100%;
-}
-
-#directional-area {
-    position: absolute;
-    width: 60%;
-    left: 20%;
-    top: 10%;
 }
 
 #mouse-arrow {
-    position: absolute;
-    width: 28%;
-    top: 48.3%;
+    width: 33%;
     left: 50%;
-    fill: white;
-    stroke: white;
+    top: 70.08%;
+    position: absolute;
     transform-origin: left;
 }
 

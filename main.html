@@ -5,7 +5,7 @@
     <!-- import keyboard styles -->
     <!-- 'classic' theme -->
     <link rel="stylesheet" href="pickr.css">
-    <link rel="stylesheet" href="./keyboards/mouse2.css">
+    <link rel="stylesheet" href="./keyboards/mouse.css">
     <script src="pickr.js"></script>
     <script src="shortcutMode.js"></script>
     <script src="./mouseSize.js"></script>
@@ -131,6 +131,10 @@
         .background-color-wrapper {
             display: flex;
             padding-bottom: 5vh;
+        }
+
+        .background-color-wrapper > * {
+            cursor: pointer;
         }
 
         #bg-green {
@@ -324,7 +328,7 @@
     function loadElement() {
         var loadElements = [
             `./keyboards/${selectedKeyboard}.html`,
-            './keyboards/mouse2.html'
+            './keyboards/mouse.html'
         ];
         if (loadElementCounter < loadElements.length) {
             loadHTML(loadElements[loadElementCounter]);
@@ -397,10 +401,8 @@
     iohook.start();
 
     //Mouse Tracking
-    localStorage.setItem('mouseTrack', true);
-    if (localStorage.getItem('mouseTrack') == 'true') {
-        ipcRenderer.send('track-mouse');
-    }
+    //Start tracking function
+    ipcRenderer.send('track-mouse');
 
     let prevMouseX = 0;
     let prevMouseY = 0;
@@ -705,9 +707,13 @@
         //Size mouse: from mouseSize.js
         mouseSize();
     };
+
+    //JS obsessive mouse sizing
     ipcRenderer.on('size-mouse', () => {
         mouseSize();
-    })
+    });
+    // mouseSize();
+
     //Change keyboard font
     var textNodes;
 
