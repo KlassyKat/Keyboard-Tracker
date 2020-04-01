@@ -17,7 +17,7 @@
             --stroke-color: white;
             --fill-color: black;
             --font-color: white;
-            --bg-color: rgb(46, 46, 46);
+            --bg-color: rgba(54, 54, 54, 1);
         }
 
         html,
@@ -153,7 +153,15 @@
             display: flex;
             width: 2em;
             height: 1.5em;
-            background-color: #222;
+            background-color: rgb(0, 0, 255);
+            border: 2px solid black;
+        }
+
+        #bg-magenta {
+            display: flex;
+            width: 2em;
+            height: 1.5em;
+            background-color: rgb(255, 0, 255);
             border: 2px solid black;
         }
 
@@ -270,6 +278,7 @@
         <span id="bg-green"></span>
         <span id="bg-red"></span>
         <span id="bg-blue"></span>
+        <span id="bg-magenta"></span>
     </div>
     <div id="keyboard-container"></div>
 </body>
@@ -289,6 +298,8 @@
     localStorage.setItem('selectedFont', selectedFontDefault);
     let selectedKeyboard = localStorage.getItem('selectedKeyboard') || 'fullKeyboard';
     localStorage.setItem('selectedKeyboard', selectedKeyboard);
+    let mouseTrackerOn = localStorage.getItem('mouseTrackerOn') || false;
+    localStorage.setItem('mouseTrackerOn', mouseTrackerOn);
 
     //For keyboard loading
     const fs = require('fs');
@@ -451,7 +462,10 @@
         root.style.setProperty('--bg-color', 'rgb(255,0,0)');
     })
     document.getElementById('bg-blue').addEventListener('click', () => {
-        root.style.setProperty('--bg-color', '#222');
+        root.style.setProperty('--bg-color', 'rgb(0,0,255');
+    })
+    document.getElementById('bg-magenta').addEventListener('click', () => {
+        root.style.setProperty('--bg-color', 'rgb(255,0,255');
     })
     //Stroke
     const strokePicker = Pickr.create({

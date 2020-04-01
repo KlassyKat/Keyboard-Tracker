@@ -22,3 +22,7 @@
   * Remnant worked (unreal)
   * RoR2 no movement (unity)
   * CSGO returns 2 values 180 degees apart at once (source, pointer lock api)
+* Chroma Key settings
+  * Similarity: 275
+  * Smoothness: 175
+  * 
