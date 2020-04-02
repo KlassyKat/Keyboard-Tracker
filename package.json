@@ -1,6 +1,6 @@
 {
   "name": "keyboard-tracker",
-  "version": "0.8.0",
+  "version": "1.0.0",
   "description": "keyboard tracker for stream / video overlays",
   "main": "main.js",
   "scripts": {
@@ -9,8 +9,12 @@
     "dist": "electron-builder"
   },
   "build": {
-    "appId": "keybord.tracker",
-    "productName": "Keyboard Tracker"
+    "appId": "com.keybord.tracker",
+    "productName": "Keyboard Tracker",
+    "win": {
+      "target": "nsis",
+      "icon": "./buildResources/iconv2.ico"
+    }
   },
   "author": "GabeAlexander",
   "license": "ISC",

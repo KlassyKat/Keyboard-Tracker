@@ -37,7 +37,8 @@ app.on('ready', function () {
         minHeight: 300,
         frame: false,
         backgroundColor: '#252525',
-        minimizable: false
+        minimizable: false,
+        icon: './buildResources/icon.ico'
     });
     //Load html in
     mainWindow.loadFile(`${__dirname}/main.html`);
