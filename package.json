@@ -1,8 +1,12 @@
 {
   "name": "keyboard-tracker",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "keyboard tracker for stream / video overlays",
   "main": "main.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/KlassyKat/Keyboard-Tracker.git"
+  },
   "scripts": {
     "start": "electron .",
     "pack": "electron-builder --dir",
@@ -13,7 +17,9 @@
     "productName": "Keyboard Tracker",
     "win": {
       "target": "nsis",
-      "icon": "./buildResources/iconv2.ico"
+      "icon": "./buildResources/iconv2.ico",
+      "oneClick": false,
+      "publish": "github"
     }
   },
   "author": "GabeAlexander",

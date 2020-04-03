@@ -36,9 +36,9 @@ app.on('ready', function () {
         minWidth: 500,
         minHeight: 300,
         frame: false,
-        backgroundColor: '#252525',
+        backgroundColor: '#212121',
         minimizable: false,
-        icon: './buildResources/icon.ico'
+        icon: './buildResources/icon.ico',
     });
     //Load html in
     mainWindow.loadFile(`${__dirname}/main.html`);
@@ -60,8 +60,8 @@ app.on('ready', function () {
     mainWindow.on('unmaximize', () => {
         maximized = false;
     });
-});
 
+});
 
 //Create menu
 const mainMenuTemplate = [{
