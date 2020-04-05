@@ -37,7 +37,7 @@ app.on('ready', function () {
         minHeight: 300,
         frame: false,
         backgroundColor: '#212121',
-        minimizable: false,
+        // minimizable: false,
         icon: './buildResources/icon.ico',
     });
     //Load html in
@@ -61,6 +61,30 @@ app.on('ready', function () {
         maximized = false;
     });
 
+
+    //Start Setting window
+    settingsWindow = new BrowserWindow({
+        webPreferences: {
+            nodeIntegration: true
+        },
+        frame: false,
+        width: 600,
+        height: 590,
+        resizable: false,
+        show: false,
+        backgroundColor: '#808080',
+        offscreen: true,
+        parent: mainWindow,
+        modal: true
+    });
+    settingsWindow.loadURL(url.format({
+        pathname: path.join(__dirname, 'settings.html'),
+        protocol: 'file:',
+        slashes: true
+    }));
+    settingsWindow.on('closed', function () {
+        settingsWindow = null;
+    });
 });
 
 //Create menu
@@ -97,37 +121,6 @@ if (process.env.NODE_ENV !== 'production') {
     })
 }
 
-
-//Open Settings Window
-ipcMain.on('open-settings', () => {
-    settingsWindow = new BrowserWindow({
-        webPreferences: {
-            nodeIntegration: true
-        },
-        frame: false,
-        width: 600,
-        height: 590,
-        resizable: false,
-        show: false,
-        backgroundColor: '#808080',
-        offscreen: true,
-        parent: mainWindow,
-        modal: true
-    });
-    settingsWindow.loadURL(url.format({
-        pathname: path.join(__dirname, 'settings.html'),
-        protocol: 'file:',
-        slashes: true
-    }));
-    settingsWindow.once('ready-to-show', () => {
-        settingsWindow.show();
-    });
-    settingsWindow.on('closed', function () {
-        settingsWindow = null;
-    });
-});
-
-
 //Mouse Tracking
 let mouseCounter = true;
 let mouseTracking;
@@ -145,33 +138,55 @@ function mouseTracker() {
 }
 
 //Window handeling
+//Open setting window
 ipcMain.on('open-settings', () => {
     settingsWindow.show();
 })
-
-//Setting window
+///Hide setting window
 ipcMain.on('close-setting-window', () => {
-    settingsWindow.close();
+    settingsWindow.hide();
+    settingsWindow.webContents.send('settings-reset');
 });
+//Apply settings
 ipcMain.on('apply-settings', () => {
     mainWindow.webContents.send('load-settings');
 });
-
+//Reload tracker when some settings are changed
 ipcMain.on('reload-main', () => {
     mainWindow.reload();
 })
 
 //Maximize Main Window
 ipcMain.on('maximize-main-window', function () {
-    if(maximized) {
+    if (maximized) {
         mainWindow.unmaximize();
     } else {
         mainWindow.maximize();
     }
     mainWindow.webContents.send('size-mouse');
 });
+ipcMain.on('minimize-main-window', () => {
+    mainWindow.minimize();
+})
+
 //Close Main Window
 ipcMain.on('close-main-window', function () {
     clearInterval(mouseTracking);
     mainWindow.close();
 });
+
+// var trackerCasting;
+
+
+// ipcMain.on('cast-tracker', () => {
+//     clearInterval(trackerCasting);
+//     setInterval(castTracker, 30);
+// })
+
+// async function castTracker() {
+//     mainWindow.webContents.savePage(`${__dirname}/test.html`, 'HTMLComplete').then(() => {
+//         console.log('Page was saved successfully.')
+//     }).catch(err => {
+//         console.log(err)
+//     })
+// }

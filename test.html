@@ -1,0 +1,1863 @@
+<!DOCTYPE html>
+<!-- saved from url=(0066)file:///C:/Users/gabea/Documents/GitHub/Keyboard-Tracker/main.html -->
+<html lang="en" style="--stroke-color:rgba(209.429,139.339,139.339,1); --fill-color:rgba(137.71,39.9605,39.9605,1); --font-color:rgba(255,255,255,1);"><head><meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+    <!-- import keyboard styles -->
+    <!-- 'classic' theme -->
+    <link rel="stylesheet" href="./test_files/pickr.css">
+    <link rel="stylesheet" href="./test_files/mouse.css">
+    <script src="./test_files/pickr.js"></script>
+    <script src="./test_files/shortcutMode.js"></script>
+    <script src="./test_files/mouseSize.js"></script>
+    <script src="file:///C:/Users/gabea/Documents/GitHub/Keyboard-Tracker/gamepad.js"></script>
+    <title>Keyboard Tracker</title>
+    <style>
+        @import url(https://fonts.googleapis.com/css?family=Montserrat:100,100italic,200,200italic,300,300italic,regular,italic,500,500italic,600,600italic,700,700italic,800,800italic,900,900italic);
+
+        :root {
+            --stroke-color: white;
+            --fill-color: black;
+            --font-color: white;
+            --bg-color: rgba(54, 54, 54, 0);
+        }
+
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            background-color: var(--bg-color);
+            -webkit-user-select: none;
+            /* Chrome all / Safari all */
+            -moz-user-select: none;
+            /* Firefox all */
+            -ms-user-select: none;
+            /* IE 10+ */
+            user-select: none;
+            overflow: hidden;
+        }
+
+        .control-bar {
+            display: grid;
+            grid-template-columns: auto 1fr 40px 40px 40px;
+            background-color: rgb(37, 37, 37);
+            -webkit-app-region: drag;
+        }
+
+        .control-bar>h2 {
+            margin: 5.5px;
+            padding: 0;
+            color: rgb(199, 73, 193);
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .control-bar>h2>span {
+            color: white;
+            font-weight: 300;
+        }
+
+        /* Settings Buttons / Color selection */
+        .settings-wrapper {
+            display: flex;
+            background-color: #444;
+        }
+
+        .settings-btn {
+            padding: 5px;
+            margin: 4px;
+            font-size: 1.2em;
+            font-weight: 600;
+            font-family: 'Montserrat', sans-serif;
+            color: white;
+            background-color: #202020;
+            border: 2px outset white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .settings-btn:hover {
+            background-color: #111;
+        }
+
+        .color-wrapper {
+            display: grid;
+            grid-template-columns: repeat(7, auto);
+            gap: 5px;
+            align-items: center;
+            padding: 0 5px 0 0;
+            font-size: 1.2em;
+            font-weight: 600;
+            font-family: 'Montserrat', sans-serif;
+            color: white;
+            background-color: #131313;
+        }
+
+        .colors-label {
+            display: flex;
+            align-items: center;
+            background-color: #000;
+            padding: 0 5px;
+            height: 100%;
+        }
+
+        .color-label {
+            font-size: 0.9em;
+            font-weight: 400;
+        }
+
+        .color-picker {
+            border: 2px inset black;
+        }
+
+        .minimize-window {
+            grid-column: 3;
+            stroke: white !important;
+            width: 40px;
+            -webkit-app-region: no-drag;
+        }
+
+        .maximize-window {
+            grid-column: 4;
+            width: 40px;
+            -webkit-app-region: no-drag;
+        }
+
+        .close-window {
+            grid-column: 5;
+            width: 40px;
+            -webkit-app-region: no-drag;
+        }
+
+        .control-bar > span:hover {
+            background-color: #080808;
+        }
+
+        .background-color-wrapper {
+            display: flex;
+            padding-bottom: 5vh;
+        }
+
+        .background-color-wrapper>* {
+            cursor: pointer;
+        }
+
+        #bg-green {
+            display: flex;
+            width: 2em;
+            height: 1.5em;
+            background-color: rgb(0, 255, 0);
+            border: 2px solid black;
+        }
+
+        #bg-red {
+            display: flex;
+            width: 2em;
+            height: 1.5em;
+            background-color: rgb(255, 0, 0);
+            border: 2px solid black;
+        }
+
+        #bg-blue {
+            display: flex;
+            width: 2em;
+            height: 1.5em;
+            background-color: rgb(0, 0, 255);
+            border: 2px solid black;
+        }
+
+        #bg-magenta {
+            display: flex;
+            width: 2em;
+            height: 1.5em;
+            background-color: rgb(255, 0, 255);
+            border: 2px solid black;
+        }
+
+        #keyboard-container {
+            width: 100%;
+            display: flex;
+            max-height: 73vh;
+        }
+
+        /* Class Binding */
+        .pressed {
+            fill: var(--fill-color);
+        }
+
+        .scroll-up {
+            fill: url('#wheel-up');
+        }
+
+        .scroll-down {
+            fill: url('#wheel-down');
+        }
+
+        svg>path {
+            stroke: var(--stroke-color);
+        }
+
+        svg>circle {
+            stroke: var(--stroke-color);
+        }
+
+        #mouse-tracker {
+            stroke: var(--stroke-color);
+            fill: var(--stroke-color);
+        }
+
+        svg text {
+            fill: var(--font-color);
+        }
+
+        /* Pickr css override */
+        .pcr-app {
+            background: #222;
+        }
+
+        .pcr-app[data-theme=classic] .pcr-selection .pcr-color-preview:before {
+            background: none;
+        }
+
+        .pcr-app[data-theme=classic] .pcr-selection .pcr-color-palette .pcr-palette:before {
+            background: none;
+        }
+
+        .pickr .pcr-button:before {
+            background: none;
+        }
+
+        .pcr-app .pcr-swatches>button:before {
+            background: none;
+        }
+
+        .pcr-save {
+            background-color: green;
+        }
+
+        text {
+            display: flex;
+            color: rgb(0, 0, 0);
+        }
+    </style>
+<link rel="stylesheet" type="text/css" href="./test_files/shortcutOnly.css"></head>
+
+<body onload="getStoredColors()" onresize="mouseSize()">
+    <nav class="control-bar">
+        <h2>Keyboard<span>Tracker</span></h2>
+        <span onclick="minimizeWindow()" class="minimize-window">
+            <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" stroke-linejoin="miter" stroke-miterlimit="2" stroke-linecap="butt">
+                <path d="
+                m 20 75
+                h 160
+                v 20
+                h -160
+                v -20
+                z" fill="white" stroke="white"></path>
+            </svg>
+        </span>
+        <span onclick="maximizeWindow()" class="maximize-window">
+            <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" stroke-linejoin="miter" stroke-miterlimit="2" stroke-linecap="butt">
+                <path d="M185,165
+                h -171
+                v -131
+                h 171
+                v 131
+                Z
+                M162,72
+                h -125
+                v 76
+                h 125
+                v -76
+                Z" fill="white"></path>
+            </svg>
+        </span>
+        <span onclick="closeWindow()" class="close-window">
+            <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" clip-rule="evenodd" stroke-linejoin="round" stroke-miterlimit="2">
+                <path d="M140.5 40.499l19 19.002L119 100l40.5 40.498-19 19.002L100 119l-40.5 40.5-19-19.002L81 100.001l-40.5-40.5 19-19.002 40.5 40.5 40.5-40.5z" fill="#fff"></path>
+            </svg>
+        </span>
+    </nav>
+    <div class="settings-wrapper">
+        <button onclick="openSettings()" class="settings-btn">Settings</button>
+        <div class="color-wrapper">
+            <div class="colors-label">Colors</div>
+            <span class="color-label">Stroke:</span>
+            <div class="pickr">
+
+        <button type="button" class="pcr-button" role="button" aria-label="toggle color picker dialog" style="color: rgb(209, 139, 139);"></button>
+
+        
+      </div>
+            <span class="color-label">Fill:</span>
+            <div class="pickr">
+
+        <button type="button" class="pcr-button" role="button" aria-label="toggle color picker dialog" style="color: rgb(138, 40, 40);"></button>
+
+        
+      </div>
+            <span class="color-label">Font:</span>
+            <div class="pickr">
+
+        <button type="button" class="pcr-button" role="button" aria-label="toggle color picker dialog" style="color: rgb(255, 255, 255);"></button>
+
+        
+      </div>
+        </div>
+    </div>
+    <div class="background-color-wrapper">
+        <span id="bg-green"></span>
+        <span id="bg-red"></span>
+        <span id="bg-blue"></span>
+        <span id="bg-magenta"></span>
+    </div>
+    <div id="keyboard-container"><div class="shortcut-only" id="shortcut-only">
+    <svg viewBox="0 0 32 27" stroke-linejoin="round">
+        <path id="41" d=" m 8 1
+                h 21
+                a 2 2 0 0 1 2 2
+                l -5 21
+                a 2 2 0 0 1 -2 2
+                h -21
+                a 2 2 0 0 1 -2 -2
+                l 5 -21
+                a 2 2 0 0 1 2 -2z" fill="none" stroke="#fff" stroke-width="2"></path>
+        <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="&#39;BNJinx&#39;,&#39;BN Jinx&#39;" font-size="0.8em" fill="#fff" style="font-family: &quot;Agency FB&quot;; font-size: 0.8em;">`</text>
+    </svg>
+    <svg viewBox="0 0 32 27" stroke-linejoin="round">
+        <path id="2" d=" m 8 1
+                h 21
+                a 2 2 0 0 1 2 2
+                l -5 21
+                a 2 2 0 0 1 -2 2
+                h -21
+                a 2 2 0 0 1 -2 -2
+                l 5 -21
+                a 2 2 0 0 1 2 -2z" fill="none" stroke="#fff" stroke-width="2"></path>
+        <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="&#39;BNJinx&#39;,&#39;BN Jinx&#39;" font-size="0.8em" fill="#fff" style="font-family: &quot;Agency FB&quot;; font-size: 0.8em;">1</text>
+    </svg>
+    <svg viewBox="0 0 32 27" stroke-linejoin="round">
+        <path id="3" d=" m 8 1
+                h 21
+                a 2 2 0 0 1 2 2
+                l -5 21
+                a 2 2 0 0 1 -2 2
+                h -21
+                a 2 2 0 0 1 -2 -2
+                l 5 -21
+                a 2 2 0 0 1 2 -2z" fill="none" stroke="#fff" stroke-width="2"></path>
+        <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="&#39;BNJinx&#39;,&#39;BN Jinx&#39;" font-size="0.8em" fill="#fff" style="font-family: &quot;Agency FB&quot;; font-size: 0.8em;">2</text>
+    </svg>
+    <svg viewBox="0 0 32 27" stroke-linejoin="round">
+        <path id="4" d=" m 8 1
+                h 21
+                a 2 2 0 0 1 2 2
+                l -5 21
+                a 2 2 0 0 1 -2 2
+                h -21
+                a 2 2 0 0 1 -2 -2
+                l 5 -21
+                a 2 2 0 0 1 2 -2z" fill="none" stroke="#fff" stroke-width="2"></path>
+        <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="&#39;BNJinx&#39;,&#39;BN Jinx&#39;" font-size="0.8em" fill="#fff" style="font-family: &quot;Agency FB&quot;; font-size: 0.8em;">3</text>
+    </svg>
+    <svg viewBox="0 0 32 27" stroke-linejoin="round">
+        <path id="5" d=" m 8 1
+                h 21
+                a 2 2 0 0 1 2 2
+                l -5 21
+                a 2 2 0 0 1 -2 2
+                h -21
+                a 2 2 0 0 1 -2 -2
+                l 5 -21
+                a 2 2 0 0 1 2 -2z" fill="none" stroke="#fff" stroke-width="2"></path>
+        <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="&#39;BNJinx&#39;,&#39;BN Jinx&#39;" font-size="0.8em" fill="#fff" style="font-family: &quot;Agency FB&quot;; font-size: 0.8em;">4</text>
+    </svg>
+    <svg viewBox="0 0 32 27" stroke-linejoin="round">
+        <path id="6" d=" m 8 1
+                h 21
+                a 2 2 0 0 1 2 2
+                l -5 21
+                a 2 2 0 0 1 -2 2
+                h -21
+                a 2 2 0 0 1 -2 -2
+                l 5 -21
+                a 2 2 0 0 1 2 -2z" fill="none" stroke="#fff" stroke-width="2"></path>
+        <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="&#39;BNJinx&#39;,&#39;BN Jinx&#39;" font-size="0.8em" fill="#fff" style="font-family: &quot;Agency FB&quot;; font-size: 0.8em;">5</text>
+    </svg>
+    <svg viewBox="0 0 32 27" stroke-linejoin="round">
+        <path id="7" d=" m 8 1
+                h 21
+                a 2 2 0 0 1 2 2
+                l -5 21
+                a 2 2 0 0 1 -2 2
+                h -21
+                a 2 2 0 0 1 -2 -2
+                l 5 -21
+                a 2 2 0 0 1 2 -2z" fill="none" stroke="#fff" stroke-width="2"></path>
+        <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="&#39;BNJinx&#39;,&#39;BN Jinx&#39;" font-size="0.8em" fill="#fff" style="font-family: &quot;Agency FB&quot;; font-size: 0.8em;">6</text>
+    </svg>
+    <svg viewBox="0 0 32 27" stroke-linejoin="round">
+        <path id="8" d=" m 8 1
+                h 21
+                a 2 2 0 0 1 2 2
+                l -5 21
+                a 2 2 0 0 1 -2 2
+                h -21
+                a 2 2 0 0 1 -2 -2
+                l 5 -21
+                a 2 2 0 0 1 2 -2z" fill="none" stroke="#fff" stroke-width="2"></path>
+        <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="&#39;BNJinx&#39;,&#39;BN Jinx&#39;" font-size="0.8em" fill="#fff" style="font-family: &quot;Agency FB&quot;; font-size: 0.8em;">7</text>
+    </svg>
+    <svg viewBox="0 0 32 27" stroke-linejoin="round">
+        <path id="9" d=" m 8 1
+                h 21
+                a 2 2 0 0 1 2 2
+                l -5 21
+                a 2 2 0 0 1 -2 2
+                h -21
+                a 2 2 0 0 1 -2 -2
+                l 5 -21
+                a 2 2 0 0 1 2 -2z" fill="none" stroke="#fff" stroke-width="2"></path>
+        <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="&#39;BNJinx&#39;,&#39;BN Jinx&#39;" font-size="0.8em" fill="#fff" style="font-family: &quot;Agency FB&quot;; font-size: 0.8em;">8</text>
+    </svg>
+    <svg viewBox="0 0 32 27" stroke-linejoin="round">
+        <path id="10" d=" m 8 1
+                h 21
+                a 2 2 0 0 1 2 2
+                l -5 21
+                a 2 2 0 0 1 -2 2
+                h -21
+                a 2 2 0 0 1 -2 -2
+                l 5 -21
+                a 2 2 0 0 1 2 -2z" fill="none" stroke="#fff" stroke-width="2"></path>
+        <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="&#39;BNJinx&#39;,&#39;BN Jinx&#39;" font-size="0.8em" fill="#fff" style="font-family: &quot;Agency FB&quot;; font-size: 0.8em;">9</text>
+    </svg>
+    <svg viewBox="0 0 32 27" stroke-linejoin="round">
+        <path id="11" d=" m 8 1
+                h 21
+                a 2 2 0 0 1 2 2
+                l -5 21
+                a 2 2 0 0 1 -2 2
+                h -21
+                a 2 2 0 0 1 -2 -2
+                l 5 -21
+                a 2 2 0 0 1 2 -2z" fill="none" stroke="#fff" stroke-width="2"></path>
+        <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="&#39;BNJinx&#39;,&#39;BN Jinx&#39;" font-size="0.8em" fill="#fff" style="font-family: &quot;Agency FB&quot;; font-size: 0.8em;">0</text>
+    </svg>
+    <svg viewBox="0 0 32 27" stroke-linejoin="round">
+        <path id="12" d=" m 8 1
+                h 21
+                a 2 2 0 0 1 2 2
+                l -5 21
+                a 2 2 0 0 1 -2 2
+                h -21
+                a 2 2 0 0 1 -2 -2
+                l 5 -21
+                a 2 2 0 0 1 2 -2z" fill="none" stroke="#fff" stroke-width="2"></path>
+        <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="&#39;BNJinx&#39;,&#39;BN Jinx&#39;" font-size="0.8em" fill="#fff" style="font-family: &quot;Agency FB&quot;; font-size: 0.8em;">-</text>
+    </svg>
+    <svg viewBox="0 0 32 27" stroke-linejoin="round">
+        <path id="13" d=" m 8 1
+                h 21
+                a 2 2 0 0 1 2 2
+                l -5 21
+                a 2 2 0 0 1 -2 2
+                h -21
+                a 2 2 0 0 1 -2 -2
+                l 5 -21
+                a 2 2 0 0 1 2 -2z" fill="none" stroke="#fff" stroke-width="2"></path>
+        <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="&#39;BNJinx&#39;,&#39;BN Jinx&#39;" font-size="0.8em" fill="#fff" style="font-family: &quot;Agency FB&quot;; font-size: 0.8em;">=</text>
+    </svg>
+    <svg viewBox="0 0 57 27" stroke-linejoin="round">
+        <path id="14" d="
+            m 8 1
+            h 46
+            a 2 2 0 0 1 2 2
+            l -5 21
+            a 2 2 0 0 1 -2 2
+            h -46
+            a 2 2 0 0 1 -2 -2
+            l 5 -21
+            a 2 2 0 0 1 2 -2
+            z" fill="none" stroke="#fff" stroke-width="2"></path>
+        <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="&#39;BNJinx&#39;,&#39;BN Jinx&#39;" font-size="0.8em" fill="#fff" style="font-family: &quot;Agency FB&quot;; font-size: 0.8em;">&#8592;</text>
+    </svg>
+    <svg viewBox="0 0 45.5 27" stroke-linejoin="round">
+        <path id="15" d="
+                m 8 1
+                h 33.5
+                a 2 2 0 0 1 2 2
+                l -5 21
+                a 2 2 0 0 1 -2 2
+                h -33.5
+                a 2 2 0 0 1 -2 -2
+                l 5 -21
+                a 2 2 0 0 1 2 -2
+        z" fill="none" stroke="#fff" stroke-width="2"></path>
+        <text x="50%" y="50%" textLength="1.5em" lengthAdjust="spacingAndGlyphs" dominant-baseline="middle" text-anchor="middle" font-family="&#39;BNJinx&#39;,&#39;BN Jinx&#39;" font-size="0.8em" fill="#fff" style="font-family: &quot;Agency FB&quot;; font-size: 0.8em;">tab</text>
+    </svg>
+    <svg viewBox="0 0 32 27" stroke-linejoin="round">
+        <path id="16" d=" m 8 1
+                h 21
+                a 2 2 0 0 1 2 2
+                l -5 21
+                a 2 2 0 0 1 -2 2
+                h -21
+                a 2 2 0 0 1 -2 -2
+                l 5 -21
+                a 2 2 0 0 1 2 -2z" fill="none" stroke="#fff" stroke-width="2"></path>
+        <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="&#39;BNJinx&#39;,&#39;BN Jinx&#39;" font-size="0.8em" fill="#fff" style="font-family: &quot;Agency FB&quot;; font-size: 0.8em;">Q</text>
+    </svg>
+    <svg viewBox="0 0 32 27" stroke-linejoin="round">
+        <path id="17" d=" m 8 1
+                h 21
+                a 2 2 0 0 1 2 2
+                l -5 21
+                a 2 2 0 0 1 -2 2
+                h -21
+                a 2 2 0 0 1 -2 -2
+                l 5 -21
+                a 2 2 0 0 1 2 -2z" fill="none" stroke="#fff" stroke-width="2"></path>
+        <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="&#39;BNJinx&#39;,&#39;BN Jinx&#39;" font-size="0.8em" fill="#fff" style="font-family: &quot;Agency FB&quot;; font-size: 0.8em;">W</text>
+    </svg>
+    <svg viewBox="0 0 32 27" stroke-linejoin="round">
+        <path id="18" d=" m 8 1
+                h 21
+                a 2 2 0 0 1 2 2
+                l -5 21
+                a 2 2 0 0 1 -2 2
+                h -21
+                a 2 2 0 0 1 -2 -2
+                l 5 -21
+                a 2 2 0 0 1 2 -2z" fill="none" stroke="#fff" stroke-width="2"></path>
+        <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="&#39;BNJinx&#39;,&#39;BN Jinx&#39;" font-size="0.8em" fill="#fff" style="font-family: &quot;Agency FB&quot;; font-size: 0.8em;">E</text>
+    </svg>
+    <svg viewBox="0 0 32 27" stroke-linejoin="round">
+        <path id="19" d=" m 8 1
+                h 21
+                a 2 2 0 0 1 2 2
+                l -5 21
+                a 2 2 0 0 1 -2 2
+                h -21
+                a 2 2 0 0 1 -2 -2
+                l 5 -21
+                a 2 2 0 0 1 2 -2z" fill="none" stroke="#fff" stroke-width="2"></path>
+        <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="&#39;BNJinx&#39;,&#39;BN Jinx&#39;" font-size="0.8em" fill="#fff" style="font-family: &quot;Agency FB&quot;; font-size: 0.8em;">R</text>
+    </svg>
+    <svg viewBox="0 0 32 27" stroke-linejoin="round">
+        <path id="20" d=" m 8 1
+                h 21
+                a 2 2 0 0 1 2 2
+                l -5 21
+                a 2 2 0 0 1 -2 2
+                h -21
+                a 2 2 0 0 1 -2 -2
+                l 5 -21
+                a 2 2 0 0 1 2 -2z" fill="none" stroke="#fff" stroke-width="2"></path>
+        <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="&#39;BNJinx&#39;,&#39;BN Jinx&#39;" font-size="0.8em" fill="#fff" style="font-family: &quot;Agency FB&quot;; font-size: 0.8em;">T</text>
+    </svg>
+    <svg viewBox="0 0 32 27" stroke-linejoin="round">
+        <path id="21" d=" m 8 1
+                h 21
+                a 2 2 0 0 1 2 2
+                l -5 21
+                a 2 2 0 0 1 -2 2
+                h -21
+                a 2 2 0 0 1 -2 -2
+                l 5 -21
+                a 2 2 0 0 1 2 -2z" fill="none" stroke="#fff" stroke-width="2"></path>
+        <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="&#39;BNJinx&#39;,&#39;BN Jinx&#39;" font-size="0.8em" fill="#fff" style="font-family: &quot;Agency FB&quot;; font-size: 0.8em;">Y</text>
+    </svg>
+    <svg viewBox="0 0 32 27" stroke-linejoin="round">
+        <path id="22" d=" m 8 1
+                h 21
+                a 2 2 0 0 1 2 2
+                l -5 21
+                a 2 2 0 0 1 -2 2
+                h -21
+                a 2 2 0 0 1 -2 -2
+                l 5 -21
+                a 2 2 0 0 1 2 -2z" fill="none" stroke="#fff" stroke-width="2"></path>
+        <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="&#39;BNJinx&#39;,&#39;BN Jinx&#39;" font-size="0.8em" fill="#fff" style="font-family: &quot;Agency FB&quot;; font-size: 0.8em;">U</text>
+    </svg>
+    <svg viewBox="0 0 32 27" stroke-linejoin="round">
+        <path id="23" d=" m 8 1
+                h 21
+                a 2 2 0 0 1 2 2
+                l -5 21
+                a 2 2 0 0 1 -2 2
+                h -21
+                a 2 2 0 0 1 -2 -2
+                l 5 -21
+                a 2 2 0 0 1 2 -2z" fill="none" stroke="#fff" stroke-width="2"></path>
+        <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="&#39;BNJinx&#39;,&#39;BN Jinx&#39;" font-size="0.8em" fill="#fff" style="font-family: &quot;Agency FB&quot;; font-size: 0.8em;">I</text>
+    </svg>
+    <svg viewBox="0 0 32 27" stroke-linejoin="round">
+        <path id="24" d=" m 8 1
+                h 21
+                a 2 2 0 0 1 2 2
+                l -5 21
+                a 2 2 0 0 1 -2 2
+                h -21
+                a 2 2 0 0 1 -2 -2
+                l 5 -21
+                a 2 2 0 0 1 2 -2z" fill="none" stroke="#fff" stroke-width="2"></path>
+        <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="&#39;BNJinx&#39;,&#39;BN Jinx&#39;" font-size="0.8em" fill="#fff" style="font-family: &quot;Agency FB&quot;; font-size: 0.8em;">O</text>
+    </svg>
+    <svg viewBox="0 0 32 27" stroke-linejoin="round">
+        <path id="25" d=" m 8 1
+                h 21
+                a 2 2 0 0 1 2 2
+                l -5 21
+                a 2 2 0 0 1 -2 2
+                h -21
+                a 2 2 0 0 1 -2 -2
+                l 5 -21
+                a 2 2 0 0 1 2 -2z" fill="none" stroke="#fff" stroke-width="2"></path>
+        <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="&#39;BNJinx&#39;,&#39;BN Jinx&#39;" font-size="0.8em" fill="#fff" style="font-family: &quot;Agency FB&quot;; font-size: 0.8em;">P</text>
+    </svg>
+    <svg viewBox="0 0 32 27" stroke-linejoin="round">
+        <path id="26" d=" m 8 1
+                h 21
+                a 2 2 0 0 1 2 2
+                l -5 21
+                a 2 2 0 0 1 -2 2
+                h -21
+                a 2 2 0 0 1 -2 -2
+                l 5 -21
+                a 2 2 0 0 1 2 -2z" fill="none" stroke="#fff" stroke-width="2"></path>
+        <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="&#39;BNJinx&#39;,&#39;BN Jinx&#39;" font-size="0.8em" fill="#fff" style="font-family: &quot;Agency FB&quot;; font-size: 0.8em;">[</text>
+    </svg>
+    <svg viewBox="0 0 32 27" stroke-linejoin="round">
+        <path id="27" d=" m 8 1
+                h 21
+                a 2 2 0 0 1 2 2
+                l -5 21
+                a 2 2 0 0 1 -2 2
+                h -21
+                a 2 2 0 0 1 -2 -2
+                l 5 -21
+                a 2 2 0 0 1 2 -2z" fill="none" stroke="#fff" stroke-width="2"></path>
+        <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="&#39;BNJinx&#39;,&#39;BN Jinx&#39;" font-size="0.8em" fill="#fff" style="font-family: &quot;Agency FB&quot;; font-size: 0.8em;">]</text>
+    </svg>
+    <svg viewBox="0 0 48 27" stroke-linejoin="round">
+        <path id="43" d="                
+                m 8 1
+                h 37
+                a 2 2 0 0 1 2 2
+                l -5 21
+                a 2 2 0 0 1 -2 2
+                h -37
+                a 2 2 0 0 1 -2 -2
+                l 5 -21
+                a 2 2 0 0 1 2 -2
+                z" fill="none" stroke="#fff" stroke-width="2"></path>
+        <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="&#39;BNJinx&#39;,&#39;BN Jinx&#39;" font-size="0.8em" fill="#fff" style="font-family: &quot;Agency FB&quot;; font-size: 0.8em;">\</text>
+    </svg>
+
+    <svg viewBox="0 0 47 27" stroke-linejoin="round">
+        <path id="58" d="
+                m 8 1
+                h 36
+                a 2 2 0 0 1 2 2
+                l -5 21
+                a 2 2 0 0 1 -2 2
+                h -36
+                a 2 2 0 0 1 -2 -2
+                l 5 -21
+                a 2 2 0 0 1 2 -2
+                z" fill="none" stroke="#fff" stroke-width="2"></path>
+        <text x="50%" y="50%" textLength="2em" lengthAdjust="spacingAndGlyphs" dominant-baseline="middle" text-anchor="middle" font-family="&#39;BNJinx&#39;,&#39;BN Jinx&#39;" font-size="0.8em" fill="#fff" style="font-family: &quot;Agency FB&quot;; font-size: 0.8em;">caps</text>
+    </svg>
+    <svg viewBox="0 0 32 27" stroke-linejoin="round">
+        <path id="30" d=" 
+                m 8 1
+                h 21
+                a 2 2 0 0 1 2 2
+                l -5 21
+                a 2 2 0 0 1 -2 2
+                h -21
+                a 2 2 0 0 1 -2 -2
+                l 5 -21
+                a 2 2 0 0 1 2 -2
+                z" fill="none" stroke="#fff" stroke-width="2"></path>
+        <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="&#39;BNJinx&#39;,&#39;BN Jinx&#39;" font-size="0.8em" fill="#fff" style="font-family: &quot;Agency FB&quot;; font-size: 0.8em;">A</text>
+    </svg>
+    <svg viewBox="0 0 32 27" stroke-linejoin="round">
+        <path id="31" d=" m 8 1
+                h 21
+                a 2 2 0 0 1 2 2
+                l -5 21
+                a 2 2 0 0 1 -2 2
+                h -21
+                a 2 2 0 0 1 -2 -2
+                l 5 -21
+                a 2 2 0 0 1 2 -2z" fill="none" stroke="#fff" stroke-width="2"></path>
+        <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="&#39;BNJinx&#39;,&#39;BN Jinx&#39;" font-size="0.8em" fill="#fff" style="font-family: &quot;Agency FB&quot;; font-size: 0.8em;">S</text>
+    </svg>
+    <svg viewBox="0 0 32 27" stroke-linejoin="round">
+        <path id="32" d=" m 8 1
+                h 21
+                a 2 2 0 0 1 2 2
+                l -5 21
+                a 2 2 0 0 1 -2 2
+                h -21
+                a 2 2 0 0 1 -2 -2
+                l 5 -21
+                a 2 2 0 0 1 2 -2z" fill="none" stroke="#fff" stroke-width="2"></path>
+        <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="&#39;BNJinx&#39;,&#39;BN Jinx&#39;" font-size="0.8em" fill="#fff" style="font-family: &quot;Agency FB&quot;; font-size: 0.8em;">D</text>
+    </svg>
+    <svg viewBox="0 0 32 27" stroke-linejoin="round">
+        <path id="33" d=" m 8 1
+                h 21
+                a 2 2 0 0 1 2 2
+                l -5 21
+                a 2 2 0 0 1 -2 2
+                h -21
+                a 2 2 0 0 1 -2 -2
+                l 5 -21
+                a 2 2 0 0 1 2 -2z" fill="none" stroke="#fff" stroke-width="2"></path>
+        <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="&#39;BNJinx&#39;,&#39;BN Jinx&#39;" font-size="0.8em" fill="#fff" style="font-family: &quot;Agency FB&quot;; font-size: 0.8em;">F</text>
+    </svg>
+    <svg viewBox="0 0 32 27" stroke-linejoin="round">
+        <path id="34" d=" m 8 1
+                h 21
+                a 2 2 0 0 1 2 2
+                l -5 21
+                a 2 2 0 0 1 -2 2
+                h -21
+                a 2 2 0 0 1 -2 -2
+                l 5 -21
+                a 2 2 0 0 1 2 -2z" fill="none" stroke="#fff" stroke-width="2"></path>
+        <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="&#39;BNJinx&#39;,&#39;BN Jinx&#39;" font-size="0.8em" fill="#fff" style="font-family: &quot;Agency FB&quot;; font-size: 0.8em;">G</text>
+    </svg>
+    <svg viewBox="0 0 32 27" stroke-linejoin="round">
+        <path id="35" d=" m 8 1
+                h 21
+                a 2 2 0 0 1 2 2
+                l -5 21
+                a 2 2 0 0 1 -2 2
+                h -21
+                a 2 2 0 0 1 -2 -2
+                l 5 -21
+                a 2 2 0 0 1 2 -2z" fill="none" stroke="#fff" stroke-width="2"></path>
+        <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="&#39;BNJinx&#39;,&#39;BN Jinx&#39;" font-size="0.8em" fill="#fff" style="font-family: &quot;Agency FB&quot;; font-size: 0.8em;">H</text>
+    </svg>
+    <svg viewBox="0 0 32 27" stroke-linejoin="round">
+        <path id="36" d=" m 8 1
+                h 21
+                a 2 2 0 0 1 2 2
+                l -5 21
+                a 2 2 0 0 1 -2 2
+                h -21
+                a 2 2 0 0 1 -2 -2
+                l 5 -21
+                a 2 2 0 0 1 2 -2z" fill="none" stroke="#fff" stroke-width="2"></path>
+        <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="&#39;BNJinx&#39;,&#39;BN Jinx&#39;" font-size="0.8em" fill="#fff" style="font-family: &quot;Agency FB&quot;; font-size: 0.8em;">J</text>
+    </svg>
+    <svg viewBox="0 0 32 27" stroke-linejoin="round">
+        <path id="37" d=" m 8 1
+                h 21
+                a 2 2 0 0 1 2 2
+                l -5 21
+                a 2 2 0 0 1 -2 2
+                h -21
+                a 2 2 0 0 1 -2 -2
+                l 5 -21
+                a 2 2 0 0 1 2 -2z" fill="none" stroke="#fff" stroke-width="2"></path>
+        <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="&#39;BNJinx&#39;,&#39;BN Jinx&#39;" font-size="0.8em" fill="#fff" style="font-family: &quot;Agency FB&quot;; font-size: 0.8em;">K</text>
+    </svg>
+    <svg viewBox="0 0 32 27" stroke-linejoin="round">
+        <path id="38" d=" m 8 1
+                h 21
+                a 2 2 0 0 1 2 2
+                l -5 21
+                a 2 2 0 0 1 -2 2
+                h -21
+                a 2 2 0 0 1 -2 -2
+                l 5 -21
+                a 2 2 0 0 1 2 -2z" fill="none" stroke="#fff" stroke-width="2"></path>
+        <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="&#39;BNJinx&#39;,&#39;BN Jinx&#39;" font-size="0.8em" fill="#fff" style="font-family: &quot;Agency FB&quot;; font-size: 0.8em;">L</text>
+    </svg>
+    <svg viewBox="0 0 32 27" stroke-linejoin="round">
+        <path id="39" d=" m 8 1
+                h 21
+                a 2 2 0 0 1 2 2
+                l -5 21
+                a 2 2 0 0 1 -2 2
+                h -21
+                a 2 2 0 0 1 -2 -2
+                l 5 -21
+                a 2 2 0 0 1 2 -2z" fill="none" stroke="#fff" stroke-width="2"></path>
+        <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="&#39;BNJinx&#39;,&#39;BN Jinx&#39;" font-size="0.8em" fill="#fff" style="font-family: &quot;Agency FB&quot;; font-size: 0.8em;">;</text>
+    </svg>
+    <svg viewBox="0 0 32 27" stroke-linejoin="round">
+        <path id="40" d=" m 8 1
+                h 21
+                a 2 2 0 0 1 2 2
+                l -5 21
+                a 2 2 0 0 1 -2 2
+                h -21
+                a 2 2 0 0 1 -2 -2
+                l 5 -21
+                a 2 2 0 0 1 2 -2z" fill="none" stroke="#fff" stroke-width="2"></path>
+        <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="&#39;BNJinx&#39;,&#39;BN Jinx&#39;" font-size="0.8em" fill="#fff" style="font-family: &quot;Agency FB&quot;; font-size: 0.8em;">'</text>
+    </svg>
+    <svg viewBox="0 0 71 27" stroke-linejoin="round">
+        <path id="28" d="
+                m 8 1
+                h 60
+                a 2 2 0 0 1 2 2
+                l -5 21
+                a 2 2 0 0 1 -2 2
+                h -60
+                a 2 2 0 0 1 -2 -2
+                l 5 -21
+                a 2 2 0 0 1 2 -2
+        z" fill="none" stroke="#fff" stroke-width="2"></path>
+        <text x="50%" y="50%" textLength="3em" lengthAdjust="spacingAndGlyphs" dominant-baseline="middle" text-anchor="middle" font-family="&#39;BNJinx&#39;,&#39;BN Jinx&#39;" font-size="0.8em" fill="#fff" style="font-family: &quot;Agency FB&quot;; font-size: 0.8em;">enter</text>
+    </svg>
+
+    <svg viewBox="0 0 79.5 27" stroke-linejoin="round">
+        <path id="42" d="                
+                m 8 1
+                h 68.5
+                a 2 2 0 0 1 2 2
+                l -5 21
+                a 2 2 0 0 1 -2 2
+                h -68.5
+                a 2 2 0 0 1 -2 -2
+                l 5 -21
+                a 2 2 0 0 1 2 -2
+                z" fill="none" stroke="#fff" stroke-width="2"></path>
+        <text x="50%" y="50%" textLength="2.6em" lengthAdjust="spacingAndGlyphs" dominant-baseline="middle" text-anchor="middle" font-family="&#39;BNJinx&#39;,&#39;BN Jinx&#39;" font-size="0.8em" fill="#fff" style="font-family: &quot;Agency FB&quot;; font-size: 0.8em;">shift</text>
+    </svg>
+    <svg viewBox="0 0 32 27" stroke-linejoin="round">
+        <path id="44" d=" m 8 1
+                h 21
+                a 2 2 0 0 1 2 2
+                l -5 21
+                a 2 2 0 0 1 -2 2
+                h -21
+                a 2 2 0 0 1 -2 -2
+                l 5 -21
+                a 2 2 0 0 1 2 -2z" fill="none" stroke="#fff" stroke-width="2"></path>
+        <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="&#39;BNJinx&#39;,&#39;BN Jinx&#39;" font-size="0.8em" fill="#fff" style="font-family: &quot;Agency FB&quot;; font-size: 0.8em;">Z</text>
+    </svg>
+    <svg viewBox="0 0 32 27" stroke-linejoin="round">
+        <path id="45" d=" m 8 1
+                h 21
+                a 2 2 0 0 1 2 2
+                l -5 21
+                a 2 2 0 0 1 -2 2
+                h -21
+                a 2 2 0 0 1 -2 -2
+                l 5 -21
+                a 2 2 0 0 1 2 -2z" fill="none" stroke="#fff" stroke-width="2"></path>
+        <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="&#39;BNJinx&#39;,&#39;BN Jinx&#39;" font-size="0.8em" fill="#fff" style="font-family: &quot;Agency FB&quot;; font-size: 0.8em;">X</text>
+    </svg>
+    <svg viewBox="0 0 32 27" stroke-linejoin="round">
+        <path id="46" d=" m 8 1
+                h 21
+                a 2 2 0 0 1 2 2
+                l -5 21
+                a 2 2 0 0 1 -2 2
+                h -21
+                a 2 2 0 0 1 -2 -2
+                l 5 -21
+                a 2 2 0 0 1 2 -2z" fill="none" stroke="#fff" stroke-width="2"></path>
+        <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="&#39;BNJinx&#39;,&#39;BN Jinx&#39;" font-size="0.8em" fill="#fff" style="font-family: &quot;Agency FB&quot;; font-size: 0.8em;">C</text>
+    </svg>
+    <svg viewBox="0 0 32 27" stroke-linejoin="round">
+        <path id="47" d=" m 8 1
+                h 21
+                a 2 2 0 0 1 2 2
+                l -5 21
+                a 2 2 0 0 1 -2 2
+                h -21
+                a 2 2 0 0 1 -2 -2
+                l 5 -21
+                a 2 2 0 0 1 2 -2z" fill="none" stroke="#fff" stroke-width="2"></path>
+        <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="&#39;BNJinx&#39;,&#39;BN Jinx&#39;" font-size="0.8em" fill="#fff" style="font-family: &quot;Agency FB&quot;; font-size: 0.8em;">V</text>
+    </svg>
+    <svg viewBox="0 0 32 27" stroke-linejoin="round">
+        <path id="48" d=" m 8 1
+                h 21
+                a 2 2 0 0 1 2 2
+                l -5 21
+                a 2 2 0 0 1 -2 2
+                h -21
+                a 2 2 0 0 1 -2 -2
+                l 5 -21
+                a 2 2 0 0 1 2 -2z" fill="none" stroke="#fff" stroke-width="2"></path>
+        <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="&#39;BNJinx&#39;,&#39;BN Jinx&#39;" font-size="0.8em" fill="#fff" style="font-family: &quot;Agency FB&quot;; font-size: 0.8em;">B</text>
+    </svg>
+    <svg viewBox="0 0 32 27" stroke-linejoin="round">
+        <path id="49" d=" m 8 1
+                h 21
+                a 2 2 0 0 1 2 2
+                l -5 21
+                a 2 2 0 0 1 -2 2
+                h -21
+                a 2 2 0 0 1 -2 -2
+                l 5 -21
+                a 2 2 0 0 1 2 -2z" fill="none" stroke="#fff" stroke-width="2"></path>
+        <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="&#39;BNJinx&#39;,&#39;BN Jinx&#39;" font-size="0.8em" fill="#fff" style="font-family: &quot;Agency FB&quot;; font-size: 0.8em;">N</text>
+    </svg>
+    <svg viewBox="0 0 32 27" stroke-linejoin="round">
+        <path id="50" d=" m 8 1
+                h 21
+                a 2 2 0 0 1 2 2
+                l -5 21
+                a 2 2 0 0 1 -2 2
+                h -21
+                a 2 2 0 0 1 -2 -2
+                l 5 -21
+                a 2 2 0 0 1 2 -2z" fill="none" stroke="#fff" stroke-width="2"></path>
+        <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="&#39;BNJinx&#39;,&#39;BN Jinx&#39;" font-size="0.8em" fill="#fff" style="font-family: &quot;Agency FB&quot;; font-size: 0.8em;">M</text>
+    </svg>
+    <svg viewBox="0 0 32 27" stroke-linejoin="round">
+        <path id="51" d=" m 8 1
+                h 21
+                a 2 2 0 0 1 2 2
+                l -5 21
+                a 2 2 0 0 1 -2 2
+                h -21
+                a 2 2 0 0 1 -2 -2
+                l 5 -21
+                a 2 2 0 0 1 2 -2z" fill="none" stroke="#fff" stroke-width="2"></path>
+        <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="&#39;BNJinx&#39;,&#39;BN Jinx&#39;" font-size="0.8em" fill="#fff" style="font-family: &quot;Agency FB&quot;; font-size: 0.8em;">,</text>
+    </svg>
+    <svg viewBox="0 0 32 27" stroke-linejoin="round">
+        <path id="52" d=" m 8 1
+                h 21
+                a 2 2 0 0 1 2 2
+                l -5 21
+                a 2 2 0 0 1 -2 2
+                h -21
+                a 2 2 0 0 1 -2 -2
+                l 5 -21
+                a 2 2 0 0 1 2 -2z" fill="none" stroke="#fff" stroke-width="2"></path>
+        <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="&#39;BNJinx&#39;,&#39;BN Jinx&#39;" font-size="0.8em" fill="#fff" style="font-family: &quot;Agency FB&quot;; font-size: 0.8em;">.</text>
+    </svg>
+    <svg viewBox="0 0 32 27" stroke-linejoin="round">
+        <path id="53" d="
+                m 8 1
+                h 21
+                a 2 2 0 0 1 2 2
+                l -5 21
+                a 2 2 0 0 1 -2 2
+                h -21
+                a 2 2 0 0 1 -2 -2
+                l 5 -21
+                a 2 2 0 0 1 2 -2
+            z" fill="none" stroke="#fff" stroke-width="2"></path>
+        <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="&#39;BNJinx&#39;,&#39;BN Jinx&#39;" font-size="0.8em" fill="#fff" style="font-family: &quot;Agency FB&quot;; font-size: 0.8em;">/</text>
+    </svg>
+    <svg viewBox="0 0 79.5 27" stroke-linejoin="round">
+        <path id="54" d="
+                m 8 1
+                h 68.5
+                a 2 2 0 0 1 2 2
+                l -5 21
+                a 2 2 0 0 1 -2 2
+                h -68.5
+                a 2 2 0 0 1 -2 -2
+                l 5 -21
+                a 2 2 0 0 1 2 -2
+        z" fill="none" stroke="#fff" stroke-width="2"></path>
+        <text x="50%" y="50%" textLength="3em" lengthAdjust="spacingAndGlyphs" dominant-baseline="middle" text-anchor="middle" font-family="&#39;BNJinx&#39;,&#39;BN Jinx&#39;" font-size="0.8em" fill="#fff" style="font-family: &quot;Agency FB&quot;; font-size: 0.8em;">shift</text>
+    </svg>
+
+    <svg viewBox="0 0 44.5 27" stroke-linejoin="round">
+        <path id="29" d="
+                m 8 1
+                h 33.5
+                a 2 2 0 0 1 2 2
+                l -5 21
+                a 2 2 0 0 1 -2 2
+                h -33.5
+                a 2 2 0 0 1 -2 -2
+                l 5 -21
+                a 2 2 0 0 1 2 -2
+                z" fill="none" stroke="#fff" stroke-width="2"></path>
+        <text x="50%" y="50%" textLength="2em" lengthAdjust="spacingAndGlyphs" dominant-baseline="middle" text-anchor="middle" font-family="&#39;BNJinx&#39;,&#39;BN Jinx&#39;" font-size="0.8em" fill="#fff" style="font-family: &quot;Agency FB&quot;; font-size: 0.8em;">ctrl</text>
+    </svg>
+    <svg viewBox="0 0 32 27" stroke-linejoin="round">
+        <path id="3675" d="m 8 1
+                h 21
+                a 2 2 0 0 1 2 2
+                l -5 21
+                a 2 2 0 0 1 -2 2
+                h -21
+                a 2 2 0 0 1 -2 -2
+                l 5 -21
+                a 2 2 0 0 1 2 -2
+                z" fill="none" stroke="#fff" stroke-width="2"></path>
+        <text x="50%" y="50%" textLength="1.6em" lengthAdjust="spacingAndGlyphs" dominant-baseline="middle" text-anchor="middle" font-family="&#39;BNJinx&#39;,&#39;BN Jinx&#39;" font-size="0.8em" fill="#fff" style="font-family: &quot;Agency FB&quot;; font-size: 0.8em;">win</text>
+    </svg>
+    <svg viewBox="0 0 44.5 27" stroke-linejoin="round">
+        <path id="56" d="
+                m 8 1
+                h 33.5
+                a 2 2 0 0 1 2 2
+                l -5 21
+                a 2 2 0 0 1 -2 2
+                h -33.5
+                a 2 2 0 0 1 -2 -2
+                l 5 -21
+                a 2 2 0 0 1 2 -2
+                z" fill="none" stroke="#fff" stroke-width="2"></path>
+        <text x="50%" y="50%" textLength="1.6em" lengthAdjust="spacingAndGlyphs" dominant-baseline="middle" text-anchor="middle" font-family="&#39;BNJinx&#39;,&#39;BN Jinx&#39;" font-size="0.8em" fill="#fff" style="font-family: &quot;Agency FB&quot;; font-size: 0.8em;">alt</text>
+    </svg>
+    <svg viewBox="0 0 157 27" stroke-linejoin="round">
+        <path id="57" d="
+                m 8 1
+                h 146
+                a 2 2 0 0 1 2 2
+                l -5 21
+                a 2 2 0 0 1 -2 2
+                h -146
+                a 2 2 0 0 1 -2 -2
+                l 5 -21
+                a 2 2 0 0 1 2 -2
+                z" fill="none" stroke="#fff" stroke-width="2"></path>
+        <text x="50%" y="50%" textLength="4em" lengthAdjust="spacingAndGlyphs" dominant-baseline="middle" text-anchor="middle" font-family="&#39;BNJinx&#39;,&#39;BN Jinx&#39;" font-size="0.8em" fill="#fff" style="font-family: &quot;Agency FB&quot;; font-size: 0.8em;"></text>
+    </svg>
+    <svg viewBox="0 0 44.5 27" stroke-linejoin="round">
+        <path id="3640" d="
+                m 8 1
+                h 33.5
+                a 2 2 0 0 1 2 2
+                l -5 21
+                a 2 2 0 0 1 -2 2
+                h -33.5
+                a 2 2 0 0 1 -2 -2
+                l 5 -21
+                a 2 2 0 0 1 2 -2
+                z" fill="none" stroke="#fff" stroke-width="2"></path>
+        <text x="50%" y="50%" textLength="1.6em" lengthAdjust="spacingAndGlyphs" dominant-baseline="middle" text-anchor="middle" font-family="&#39;BNJinx&#39;,&#39;BN Jinx&#39;" font-size="0.8em" fill="#fff" style="font-family: &quot;Agency FB&quot;; font-size: 0.8em;">alt</text>
+    </svg>
+    <svg viewBox="0 0 32 27" stroke-linejoin="round">
+        <path id="30" d="m 8 1
+                h 21
+                a 2 2 0 0 1 2 2
+                l -5 21
+                a 2 2 0 0 1 -2 2
+                h -21
+                a 2 2 0 0 1 -2 -2
+                l 5 -21
+                a 2 2 0 0 1 2 -2
+                z" fill="none" stroke="#fff" stroke-width="2"></path>
+        <text x="50%" y="50%" textLength="1.5em" lengthAdjust="spacingAndGlyphs" dominant-baseline="middle" text-anchor="middle" font-family="&#39;BNJinx&#39;,&#39;BN Jinx&#39;" font-size="0.8em" fill="#fff" style="font-family: &quot;Agency FB&quot;; font-size: 0.8em;">fn</text>
+    </svg>
+    <svg viewBox="0 0 32 27" stroke-linejoin="round">
+        <path id="3677" d="                
+                m 8 1
+                h 21
+                a 2 2 0 0 1 2 2
+                l -5 21
+                a 2 2 0 0 1 -2 2
+                h -21
+                a 2 2 0 0 1 -2 -2
+                l 5 -21
+                a 2 2 0 0 1 2 -2
+                z" fill="none" stroke="#fff" stroke-width="2"></path>
+        <text x="50%" y="50%" textLength="1.6em" lengthAdjust="spacingAndGlyphs" dominant-baseline="middle" text-anchor="middle" font-family="&#39;BNJinx&#39;,&#39;BN Jinx&#39;" font-size="0.8em" fill="#fff" style="font-family: &quot;Agency FB&quot;; font-size: 0.8em;">opt</text>
+    </svg>
+    <svg viewBox="0 0 48 27" stroke-linejoin="round">
+        <path id="3613" d="
+                m 8 1
+                h 37
+                a 2 2 0 0 1 2 2
+                l -5 21
+                a 2 2 0 0 1 -2 2
+                h -37
+                a 2 2 0 0 1 -2 -2
+                l 5 -21
+                a 2 2 0 0 1 2 -2
+                z" fill="none" stroke="#fff" stroke-width="2"></path>
+        <text x="50%" y="50%" width="50%" textLength="2em" lengthAdjust="spacingAndGlyphs" dominant-baseline="middle" text-anchor="middle" font-family="&#39;BNJinx&#39;,&#39;BN Jinx&#39;" font-size="0.8em" fill="#fff" style="font-family: &quot;Agency FB&quot;; font-size: 0.8em;">ctrl</text>
+    </svg>
+    <svg viewBox="0 0 32 27" stroke-linejoin="round">
+        <path id="61003" d="
+                m 8 1
+                h 21
+                a 2 2 0 0 1 2 2
+                l -5 21
+                a 2 2 0 0 1 -2 2
+                h -21
+                a 2 2 0 0 1 -2 -2
+                l 5 -21
+                a 2 2 0 0 1 2 -2
+            z" fill="none" stroke="#fff" stroke-width="2"></path>
+        <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="&#39;BNJinx&#39;,&#39;BN Jinx&#39;" font-size="0.8em" fill="#fff" style="font-family: &quot;Agency FB&quot;; font-size: 0.8em;">&#8592;</text>
+    </svg>
+    <svg viewBox="0 0 32 27" stroke-linejoin="round">
+        <path id="61000" d="
+                m 8 1
+                h 21
+                a 2 2 0 0 1 2 2
+                l -5 21
+                a 2 2 0 0 1 -2 2
+                h -21
+                a 2 2 0 0 1 -2 -2
+                l 5 -21
+                a 2 2 0 0 1 2 -2
+            z" fill="none" stroke="#fff" stroke-width="2"></path>
+        <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="&#39;BNJinx&#39;,&#39;BN Jinx&#39;" font-size="0.8em" fill="#fff" style="font-family: &quot;Agency FB&quot;; font-size: 0.8em;">&#8593;</text>
+    </svg>
+    <svg viewBox="0 0 32 27" stroke-linejoin="round">
+        <path id="61005" d="
+                m 8 1
+                h 21
+                a 2 2 0 0 1 2 2
+                l -5 21
+                a 2 2 0 0 1 -2 2
+                h -21
+                a 2 2 0 0 1 -2 -2
+                l 5 -21
+                a 2 2 0 0 1 2 -2
+            z" fill="none" stroke="#fff" stroke-width="2"></path>
+        <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="&#39;BNJinx&#39;,&#39;BN Jinx&#39;" font-size="0.8em" fill="#fff" style="font-family: &quot;Agency FB&quot;; font-size: 0.8em;">&#8594;</text>
+    </svg>
+    <svg viewBox="0 0 32 27" stroke-linejoin="round">
+        <path id="61008" d="
+                m 8 1
+                h 21
+                a 2 2 0 0 1 2 2
+                l -5 21
+                a 2 2 0 0 1 -2 2
+                h -21
+                a 2 2 0 0 1 -2 -2
+                l 5 -21
+                a 2 2 0 0 1 2 -2
+            z" fill="none" stroke="#fff" stroke-width="2"></path>
+        <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="&#39;BNJinx&#39;,&#39;BN Jinx&#39;" font-size="0.8em" fill="#fff" style="font-family: &quot;Agency FB&quot;; font-size: 0.8em;">&#8595;</text>
+    </svg>
+    <svg viewBox="0 0 32 27" stroke-linejoin="round">
+        <path id="61010" d="
+                m 8 1
+                h 21
+                a 2 2 0 0 1 2 2
+                l -5 21
+                a 2 2 0 0 1 -2 2
+                h -21
+                a 2 2 0 0 1 -2 -2
+                l 5 -21
+                a 2 2 0 0 1 2 -2
+            z" fill="none" stroke="#fff" stroke-width="2"></path>
+        <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="&#39;BNJinx&#39;,&#39;BN Jinx&#39;" font-size="0.8em" fill="#fff" style="font-family: &quot;Agency FB&quot;; font-size: 0.8em;">ins</text>
+    </svg>
+    <svg viewBox="0 0 32 27" stroke-linejoin="round">
+        <path id="61011" d="
+                m 8 1
+                h 21
+                a 2 2 0 0 1 2 2
+                l -5 21
+                a 2 2 0 0 1 -2 2
+                h -21
+                a 2 2 0 0 1 -2 -2
+                l 5 -21
+                a 2 2 0 0 1 2 -2
+            z" fill="none" stroke="#fff" stroke-width="2"></path>
+        <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="&#39;BNJinx&#39;,&#39;BN Jinx&#39;" font-size="0.8em" fill="#fff" style="font-family: &quot;Agency FB&quot;; font-size: 0.8em;">del</text>
+    </svg>
+    <svg viewBox="0 0 32 27" stroke-linejoin="round">
+        <path id="60999" d="
+                m 8 1
+                h 21
+                a 2 2 0 0 1 2 2
+                l -5 21
+                a 2 2 0 0 1 -2 2
+                h -21
+                a 2 2 0 0 1 -2 -2
+                l 5 -21
+                a 2 2 0 0 1 2 -2
+                z" fill="none" stroke="#fff" stroke-width="2"></path>
+        <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="&#39;BNJinx&#39;,&#39;BN Jinx&#39;" font-size="0.7em" fill="#fff" style="font-family: &quot;Agency FB&quot;; font-size: 0.8em;">home</text>
+    </svg>
+    <svg viewBox="0 0 32 27" stroke-linejoin="round">
+        <path id="61007" d="
+                m 8 1
+                h 21
+                a 2 2 0 0 1 2 2
+                l -5 21
+                a 2 2 0 0 1 -2 2
+                h -21
+                a 2 2 0 0 1 -2 -2
+                l 5 -21
+                a 2 2 0 0 1 2 -2
+                z" fill="none" stroke="#fff" stroke-width="2"></path>
+        <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="&#39;BNJinx&#39;,&#39;BN Jinx&#39;" font-size="0.8em" fill="#fff" style="font-family: &quot;Agency FB&quot;; font-size: 0.8em;">end</text>
+    </svg>
+    <svg viewBox="0 0 32 27" stroke-linejoin="round">
+        <path id="61001" d="
+                m 8 1
+                h 21
+                a 2 2 0 0 1 2 2
+                l -5 21
+                a 2 2 0 0 1 -2 2
+                h -21
+                a 2 2 0 0 1 -2 -2
+                l 5 -21
+                a 2 2 0 0 1 2 -2
+                z" fill="none" stroke="#fff" stroke-width="2"></path>
+        <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="&#39;BNJinx&#39;,&#39;BN Jinx&#39;" font-size="0.7em" fill="#fff" style="font-family: &quot;Agency FB&quot;; font-size: 0.8em;">pg up</text>
+    </svg>
+    <svg viewBox="0 0 32 27" stroke-linejoin="round">
+        <path id="61009" d="
+                m 8 1
+                h 21
+                a 2 2 0 0 1 2 2
+                l -5 21
+                a 2 2 0 0 1 -2 2
+                h -21
+                a 2 2 0 0 1 -2 -2
+                l 5 -21
+                a 2 2 0 0 1 2 -2
+                z" fill="none" stroke="#fff" stroke-width="2"></path>
+        <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="&#39;BNJinx&#39;,&#39;BN Jinx&#39;" font-size="0.5em" fill="#fff" style="font-family: &quot;Agency FB&quot;; font-size: 0.8em;">pg dwn</text>
+    </svg>
+    <svg viewBox="0 0 57 27" stroke-linejoin="round">
+        <path id="82" d="
+                m 8 1
+                h 46
+                a 2 2 0 0 1 2 2
+                l -5 21
+                a 2 2 0 0 1 -2 2
+                h -46
+                a 2 2 0 0 1 -2 -2
+                l 5 -21
+                a 2 2 0 0 1 2 -2
+                z" fill="none" stroke="#fff" stroke-width="2"></path>
+        <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="&#39;BNJinx&#39;,&#39;BN Jinx&#39;" font-size="0.8em" fill="#fff" style="font-family: &quot;Agency FB&quot;; font-size: 0.8em;">0</text>
+    </svg>
+</div><div class="mouse" style="width: 338.65px;">
+    <svg class="mouse-svg" viewBox="0 0 115 180">
+        <path id="RMB" d="
+            m 59 1
+            h 32
+            a 8 8 0 0 1 8 8
+            l 15 62
+            a 8 8 0 0 1 -8 8
+            h -30
+            a 8 8 0 0 1 -8 -8
+            v -20
+            a 8 8 0 0 0 -8 -8.5
+            z" stroke-width="2" stroke-linejoin="round" fill="none" stroke="#000"></path>
+        <path id="LMB" d="
+            m 54 1
+            h -30
+            a 8 8 0 0 0 -8 8
+            l -15 62
+            a 8 8 0 0 0 8 8
+            h 30
+            a 8 8 0 0 0 8 -8
+            v -20
+            a 8 8 0 0 1 8 -8.5
+            z" stroke-width="2" stroke-linejoin="round" fill="none" stroke="#000"></path>
+        <defs>
+            <lineargradient id="wheel-up" x1="0%" y1="0%" x2="0%" y2="50%">
+                <stop offset="0%" style="stop-color:var(--fill-color);stop-opacity:1"></stop>
+                <stop offset="50%" style="stop-color:var(--fill-color);stop-opacity:1"></stop>
+                <stop offset="100%" style="stop-color:rgb(0, 0, 0);stop-opacity:0"></stop>
+            </lineargradient>
+            <lineargradient id="wheel-down" x1="0%" y1="100%" x2="0%" y2="50%">
+                <stop offset="0%" style="stop-color:var(--fill-color);stop-opacity:1"></stop>
+                <stop offset="50%" style="stop-color:var(--fill-color);stop-opacity:1"></stop>
+                <stop offset="100%" style="stop-color:rgb(0, 0, 0);stop-opacity:0"></stop>
+            </lineargradient>
+        </defs>
+        <path id="MMB" d="
+            m 50.5 53.5
+            v 20
+            c 0 10 14 10 14 0
+            v -20
+            c 0 -10 -14 -10 -14 0
+            z" stroke-width="2" stroke-linejoin="round" fill="none" stroke="#000"></path>
+        <path id="mouse-bottom" d="
+            m 1 85
+            h 113
+            l -14 87
+            a 6 6 0 0 1 -6 6
+            h -73
+            a 6 6 0 0 1 -6 -6
+            l -14 -87
+            z" stroke-width="2" stroke-linejoin="round" fill="none" stroke="#000"></path>
+        <circle class="mouse-tracker" id="mouse-tracker-container" cx="57.5" cy="130" r="40" fill="none" stroke="#000" stroke-width="2" style="opacity: 1;"></circle>
+        <circle class="mouse-tracker" id="mouse-tracker-anchor" cx="57.5" cy="130" r="2.6" fill="var(--stroke-color)" stroke="#000" stroke-width="4" style="opacity: 1;"></circle>
+
+    </svg>
+    <svg id="mouse-arrow" viewBox="0 0 40 8" style="left: 169.32px; top: 371.316px; opacity: 1; transform: rotate(0deg);">
+        <path fill="none" stroke="#000" stroke-width="4" d="m 0 4 h0"></path>
+        <path d="m0 4
+            v -3
+            l 4 3
+            l -4 3
+            z"></path>
+    </svg>
+</div></div>
+
+
+
+<script>
+    const electron = require('electron');
+    const {
+        ipcRenderer
+    } = electron;
+    'use strict';
+
+    //Load defaults
+    let fontSizeDefault = localStorage.getItem('fontSize') || 1;
+    localStorage.setItem('fontSize', fontSizeDefault);
+    let selectedFontDefault = localStorage.getItem('selectedFont') || 'Roboto';
+    localStorage.setItem('selectedFont', selectedFontDefault);
+    let selectedKeyboard = localStorage.getItem('selectedKeyboard') || 'fullKeyboard';
+    localStorage.setItem('selectedKeyboard', selectedKeyboard);
+    let mouseTrackerOn = localStorage.getItem('mouseTrackerOn') || false;
+    localStorage.setItem('mouseTrackerOn', mouseTrackerOn);
+
+    //For keyboard loading
+    const fs = require('fs');
+    const {
+        promisify
+    } = require('util');
+    const path = require('path');
+    const readFile = promisify(fs.readFile);
+
+    //* Keyboard loading
+    //Load keyboard css
+    var head = document.getElementsByTagName('HEAD')[0];
+    var link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.type = 'text/css';
+    link.href = `./keyboards/${selectedKeyboard}.css`;
+    head.appendChild(link);
+
+    //Load keyboard html
+    var loadElementCounter = 0;
+
+    function loadElement() {
+        var loadElements = [
+            `./keyboards/${selectedKeyboard}.html`,
+            './keyboards/mouse.html'
+        ];
+        if (loadElementCounter < loadElements.length) {
+            loadHTML(loadElements[loadElementCounter]);
+        }
+    }
+    loadElement();
+
+
+    //Button tracking
+    const iohook = require('iohook');
+
+    iohook.on('keydown', pushKey);
+
+    function pushKey(e) {
+        if (selectedKeyboard == 'shortcutOnly') {
+            shortcutDisplay(e);
+        }
+        console.log(e.keycode);
+        let key = document.getElementById(e.keycode);
+        key.classList.add("pressed");
+    }
+
+    iohook.on('keyup', releaseKey);
+
+    function releaseKey(e) {
+        if (selectedKeyboard == 'shortcutOnly') {
+            shortcutHide(e);
+        }
+        let key = document.getElementById(e.keycode);
+        key && key.classList.remove("pressed");
+    }
+
+    iohook.on('mousedown', (e) => {
+        if (e.button == 1) {
+            document.getElementById('LMB').classList.add("pressed");
+        } else if (e.button == 2) {
+            document.getElementById('RMB').classList.add("pressed");
+        } else {
+            document.getElementById('MMB').classList.add("pressed");
+        }
+    })
+
+    iohook.on('mouseup', (e) => {
+        if (e.button == 1) {
+            document.getElementById('LMB').classList.remove("pressed");
+        } else if (e.button == 2) {
+            document.getElementById('RMB').classList.remove("pressed");
+        } else {
+            document.getElementById('MMB').classList.remove("pressed");
+        }
+    })
+
+    iohook.on('mousewheel', (e) => {
+        if (e.rotation == -1) {
+            document.getElementById('MMB').classList.add("scroll-up");
+            setTimeout(() => {
+                document.getElementById('MMB').classList.remove("scroll-up")
+            }, 90);
+        }
+        if (e.rotation == 1) {
+            document.getElementById('MMB').classList.add("scroll-down");
+            setTimeout(() => {
+                document.getElementById('MMB').classList.remove("scroll-down")
+            }, 90);
+        }
+    })
+
+
+
+    iohook.start();
+
+    //Mouse Tracking
+    //Start tracking function
+    ipcRenderer.send('track-mouse');
+
+    let prevMouseX = 0;
+    let prevMouseY = 0;
+    ipcRenderer.on('mouse-pos', (event, data) => {
+        let {
+            x,
+            y
+        } = data.pos;
+        let angle = calcAngleDegrees(x - prevMouseX, y - prevMouseY);
+        document.getElementById('mouse-arrow').style.transform = `rotate(${angle}deg)`;
+        getDistance(x - prevMouseX, y - prevMouseY);
+        prevMouseX = x;
+        prevMouseY = y;
+    });
+
+    function calcAngleDegrees(x, y) {
+        return Math.atan2(y, x) * 180 / Math.PI;
+    }
+
+    function getDistance(x, y) {
+        let distance = Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
+        let range = distance / 50 <= 1 ? distance / 50 : 1;
+        range = range * 35;
+        document.getElementById('mouse-arrow').querySelectorAll('path')[0].setAttribute('d',
+            `m 0 4 h${range}`);
+        document.getElementById('mouse-arrow').querySelectorAll('path')[1].setAttribute('d',
+            `m${range} 4
+            v -3
+            l 4 3
+            l -4 3
+            z`);
+    }
+
+    //Window Handeling
+    function openSettings() {
+        ipcRenderer.send('open-settings');
+    }
+
+    function closeWindow() {
+        ipcRenderer.send('close-main-window');
+    }
+
+    function maximizeWindow() {
+        ipcRenderer.send('maximize-main-window');
+    }
+
+    function minimizeWindow() {
+        ipcRenderer.send('minimize-main-window');
+    }
+
+    //Color Picking  Done with https://www.npmjs.com/package/@simonwep/pickr/v/1.5.1
+    var root = document.documentElement;
+
+    function getStoredColors() {
+        root.style.setProperty('--stroke-color', localStorage.getItem('strokeColor') || 'rgba(255,255,255,1)');
+        root.style.setProperty('--fill-color', localStorage.getItem('fillColor') || 'rgba(0,0,0,1)');
+        root.style.setProperty('--font-color', localStorage.getItem('fontColor') || 'rgba(255,255,255,1)');
+    }
+    // Background
+    document.getElementById('bg-green').addEventListener('click', () => {
+        root.style.setProperty('--bg-color', 'rgb(0,255,0)');
+    })
+    document.getElementById('bg-red').addEventListener('click', () => {
+        root.style.setProperty('--bg-color', 'rgb(255,0,0)');
+    })
+    document.getElementById('bg-blue').addEventListener('click', () => {
+        root.style.setProperty('--bg-color', 'rgb(0,0,255');
+    })
+    document.getElementById('bg-magenta').addEventListener('click', () => {
+        root.style.setProperty('--bg-color', 'rgb(255,0,255');
+    })
+    //Stroke
+    const strokePicker = Pickr.create({
+        el: '.stroke-color-picker',
+        theme: 'classic', // or 'monolith', or 'nano'
+        default: localStorage.getItem('strokeColor') || 'rgba(255,255,255,1)',
+        swatches: [
+            'rgba(244, 67, 54, 1)',
+            'rgba(233, 30, 99, 1)',
+            'rgba(156, 39, 176, 1)',
+            'rgba(103, 58, 183, 1)',
+            'rgba(63, 81, 181, 1)',
+            'rgba(33, 150, 243, 1)',
+            'rgba(3, 169, 244, 1)',
+            'rgba(0, 188, 212, 1)',
+            'rgba(0, 150, 136, 1)',
+            'rgba(76, 175, 80, 1)',
+            'rgba(139, 195, 74, 1)',
+            'rgba(205, 220, 57, 1)',
+            'rgba(255, 235, 59, 1)',
+            'rgba(255, 193, 7, 1)'
+        ],
+
+        components: {
+
+            // Main components
+            preview: true,
+            opacity: true,
+            hue: true,
+
+            // Input / output Options
+            interaction: {
+                hex: true,
+                rgba: true,
+                hsla: true,
+                hsva: false,
+                cmyk: false,
+                input: true,
+                clear: false,
+                save: true
+            }
+        }
+    });
+    //Fill
+    const fillPicker = Pickr.create({
+        el: '.fill-color-picker',
+        theme: 'classic', // or 'monolith', or 'nano'
+        default: localStorage.getItem('fillColor') || 'rgba(0,0,0,1)',
+        swatches: [
+            'rgba(244, 67, 54, 1)',
+            'rgba(233, 30, 99, 1)',
+            'rgba(156, 39, 176, 1)',
+            'rgba(103, 58, 183, 1)',
+            'rgba(63, 81, 181, 1)',
+            'rgba(33, 150, 243, 1)',
+            'rgba(3, 169, 244, 1)',
+            'rgba(0, 188, 212, 1)',
+            'rgba(0, 150, 136, 1)',
+            'rgba(76, 175, 80, 1)',
+            'rgba(139, 195, 74, 1)',
+            'rgba(205, 220, 57, 1)',
+            'rgba(255, 235, 59, 1)',
+            'rgba(255, 193, 7, 1)'
+        ],
+
+        components: {
+
+            // Main components
+            preview: true,
+            opacity: true,
+            hue: true,
+
+            // Input / output Options
+            interaction: {
+                hex: true,
+                rgba: true,
+                hsla: true,
+                hsva: false,
+                cmyk: false,
+                input: true,
+                clear: false,
+                save: true
+            }
+        }
+    });
+    //Font
+    const fontPicker = Pickr.create({
+        el: '.font-color-picker',
+        theme: 'classic', // or 'monolith', or 'nano'
+        default: localStorage.getItem('fontColor') || 'rgba(255,255,255,1)',
+        swatches: [
+            'rgba(244, 67, 54, 1)',
+            'rgba(233, 30, 99, 1)',
+            'rgba(156, 39, 176, 1)',
+            'rgba(103, 58, 183, 1)',
+            'rgba(63, 81, 181, 1)',
+            'rgba(33, 150, 243, 1)',
+            'rgba(3, 169, 244, 1)',
+            'rgba(0, 188, 212, 1)',
+            'rgba(0, 150, 136, 1)',
+            'rgba(76, 175, 80, 1)',
+            'rgba(139, 195, 74, 1)',
+            'rgba(205, 220, 57, 1)',
+            'rgba(255, 235, 59, 1)',
+            'rgba(255, 193, 7, 1)'
+        ],
+
+        components: {
+
+            // Main components
+            preview: true,
+            opacity: true,
+            hue: true,
+
+            // Input / output Options
+            interaction: {
+                hex: true,
+                rgba: true,
+                hsla: true,
+                hsva: false,
+                cmyk: false,
+                input: true,
+                clear: false,
+                save: true
+            }
+        }
+    });
+
+    //Handleing Colors
+
+    //Stroke
+    let strokeStoreColor;
+    let newStrokeColor;
+
+    //Set to fallback to original value if not saved
+    strokePicker.on('show', instance => {
+        strokeStoreColor = localStorage.getItem('strokeColor') || 'rgba(255,255,255,1)';
+    });
+    //Preview color on change
+    strokePicker.on('change', instance => {
+        newStrokeColor = instance.toRGBA();
+        let r = newStrokeColor[0];
+        let g = newStrokeColor[1];
+        let b = newStrokeColor[2];
+        let a = newStrokeColor[3];
+        newStrokeColor = 'rgba(' + r + ',' + g + ',' + b + ',' + a + ')'
+        localStorage.setItem('strokeColor', newStrokeColor);
+        getStoredColors();
+    });
+    //Revert to original if not saved
+    strokePicker.on('hide', instance => {
+        localStorage.setItem('strokeColor', strokeStoreColor);
+        getStoredColors();
+    });
+    //Set color when saved
+    strokePicker.on('save', instance => {
+        strokeStoreColor = newStrokeColor || strokeStoreColor;
+        localStorage.setItem('strokeColor', strokeStoreColor);
+        getStoredColors();
+    })
+
+    //Fill
+    let fillStoreColor;
+    let newFillColor;
+
+    //Set to fallback to original value if not saved
+    fillPicker.on('show', instance => {
+        fillStoreColor = localStorage.getItem('fillColor') || 'rgba(0,0,0,1)';
+    });
+    //Preview color on change
+    fillPicker.on('change', instance => {
+        newFillColor = instance.toRGBA();
+        let r = newFillColor[0];
+        let g = newFillColor[1];
+        let b = newFillColor[2];
+        let a = newFillColor[3];
+        newFillColor = 'rgba(' + r + ',' + g + ',' + b + ',' + a + ')'
+        localStorage.setItem('fillColor', newFillColor);
+        getStoredColors();
+    });
+    //Revert to original if not saved
+    fillPicker.on('hide', instance => {
+        localStorage.setItem('fillColor', fillStoreColor);
+        getStoredColors();
+    });
+    //Set color when saved
+    fillPicker.on('save', instance => {
+        fillStoreColor = newFillColor || fillStoreColor;
+        localStorage.setItem('fillColor', fillStoreColor);
+        getStoredColors();
+    })
+
+    //Font
+    let fontStoreColor;
+    let newFontColor;
+
+    //Set to fallback to original value if not saved
+    fontPicker.on('show', instance => {
+        fontStoreColor = localStorage.getItem('fontColor') || 'rgba(0,0,0,1)';
+    });
+    //Preview color on change
+    fontPicker.on('change', instance => {
+        newFontColor = instance.toRGBA();
+        let r = newFontColor[0];
+        let g = newFontColor[1];
+        let b = newFontColor[2];
+        let a = newFontColor[3];
+        newFontColor = 'rgba(' + r + ',' + g + ',' + b + ',' + a + ')'
+        localStorage.setItem('fontColor', newFontColor);
+        getStoredColors();
+    });
+    //Revert to original if not saved
+    fontPicker.on('hide', instance => {
+        localStorage.setItem('fontColor', fontStoreColor);
+        getStoredColors();
+    });
+    //Set color when saved
+    fontPicker.on('save', instance => {
+        fontStoreColor = newFontColor || fontStoreColor;
+        localStorage.setItem('fontColor', fontStoreColor);
+        getStoredColors();
+    })
+
+    //Load keyboard
+    async function loadHTML(html) {
+        const render = await readFile(path.join(__dirname, html), 'utf-8');
+        const parser = new DOMParser();
+        const childrenArray = parser.parseFromString(render, 'text/html').querySelector('body').childNodes;
+        const frag = document.createDocumentFragment();
+        childrenArray.forEach(item => {
+            frag.appendChild(item);
+        });
+        document.body.childNodes[7].appendChild(frag);
+        loadElementCounter++;
+        loadElement();
+        loadFont();
+        //Size mouse: from mouseSize.js
+        mouseSize();
+    };
+
+    //JS obsessive mouse sizing
+    ipcRenderer.on('size-mouse', () => {
+        mouseSize();
+    });
+    // mouseSize();
+
+    //Change keyboard font
+    var textNodes;
+
+    function loadFont() {
+        textNodes = document.querySelectorAll('text');
+        let fontSize = 0.8 * localStorage.getItem(
+            'fontSize'); //* Will need to changes this if we make any keys have different font sizes
+        for (let i = 0; i < textNodes.length; i++) {
+            textNodes[i].style.fontFamily = localStorage.getItem('selectedFont');
+            textNodes[i].style.fontSize = fontSize + 'em';
+        }
+    }
+
+    ipcRenderer.on('load-settings', () => {
+        loadFont();
+    });
+</script><div class="pcr-app" data-theme="classic" aria-label="color picker dialog" role="form" style="left: 12.5156px; top: 87.3281px;">
+          <div class="pcr-selection">
+            <div class="pcr-color-preview">
+              <button type="button" class="pcr-last-color" aria-label="use previous color" style="color: rgb(209, 139, 139);"></button>
+              <div class="pcr-current-color" style="color: rgb(209, 139, 139);"></div>
+            </div>
+
+            <div class="pcr-color-palette">
+              <div class="pcr-picker" style="left: calc(33.4672% - 9px); top: calc(17.8711% - 9px); background: rgb(209, 139, 139);"></div>
+              <div class="pcr-palette" tabindex="0" aria-label="color selection area" role="listbox" style="background: linear-gradient(to top, rgb(0, 0, 0), transparent), linear-gradient(to left, rgb(255, 0, 0), rgb(255, 255, 255));"></div>
+            </div>
+
+            <div class="pcr-color-chooser">
+              <div class="pcr-picker" style="top: calc(0% - 9px); background-color: rgb(255, 0, 0);"></div>
+              <div class="pcr-hue pcr-slider" tabindex="0" aria-label="hue selection slider" role="slider"></div>
+            </div>
+
+            <div class="pcr-color-opacity">
+              <div class="pcr-picker" style="top: calc(100% - 9px); background: rgb(0, 0, 0);"></div>
+              <div class="pcr-opacity pcr-slider" tabindex="0" aria-label="opacity selection slider" role="slider"></div>
+            </div>
+          </div>
+
+          <div class="pcr-swatches "><button type="button" style="color: rgba(244, 67, 54, 1)" aria-label="color swatch"></button><button type="button" style="color: rgba(233, 30, 99, 1)" aria-label="color swatch"></button><button type="button" style="color: rgba(156, 39, 176, 1)" aria-label="color swatch"></button><button type="button" style="color: rgba(103, 58, 183, 1)" aria-label="color swatch"></button><button type="button" style="color: rgba(63, 81, 181, 1)" aria-label="color swatch"></button><button type="button" style="color: rgba(33, 150, 243, 1)" aria-label="color swatch"></button><button type="button" style="color: rgba(3, 169, 244, 1)" aria-label="color swatch"></button><button type="button" style="color: rgba(0, 188, 212, 1)" aria-label="color swatch"></button><button type="button" style="color: rgba(0, 150, 136, 1)" aria-label="color swatch"></button><button type="button" style="color: rgba(76, 175, 80, 1)" aria-label="color swatch"></button><button type="button" style="color: rgba(139, 195, 74, 1)" aria-label="color swatch"></button><button type="button" style="color: rgba(205, 220, 57, 1)" aria-label="color swatch"></button><button type="button" style="color: rgba(255, 235, 59, 1)" aria-label="color swatch"></button><button type="button" style="color: rgba(255, 193, 7, 1)" aria-label="color swatch"></button></div> 
+
+          <div class="pcr-interaction">
+            <input class="pcr-result" type="text" spellcheck="false">
+
+            <input class="pcr-type" data-type="HEXA" value="HEXA" type="button">
+            <input class="pcr-type active" data-type="RGBA" value="RGBA" type="button">
+            <input class="pcr-type" data-type="HSLA" value="HSLA" type="button">
+            <input class="pcr-type" data-type="HSVA" value="HSVA" type="button" style="display:none" hidden="">
+            <input class="pcr-type" data-type="CMYK" value="CMYK" type="button" style="display:none" hidden="">
+
+            <input class="pcr-save" value="Save" type="button" aria-label="save and exit">
+            <input class="pcr-cancel" value="Cancel" type="button" style="display:none" hidden="" aria-label="cancel and exit">
+            <input class="pcr-clear" value="Clear" type="button" style="display:none" hidden="" aria-label="clear and exit">
+          </div>
+        </div><div class="pcr-app" data-theme="classic" aria-label="color picker dialog" role="form" style="left: 89.3906px; top: 87.3281px;">
+          <div class="pcr-selection">
+            <div class="pcr-color-preview">
+              <button type="button" class="pcr-last-color" aria-label="use previous color" style="color: rgb(138, 40, 40);"></button>
+              <div class="pcr-current-color" style="color: rgb(138, 40, 40);"></div>
+            </div>
+
+            <div class="pcr-color-palette">
+              <div class="pcr-picker" style="left: calc(70.9822% - 9px); top: calc(45.9961% - 9px); background: rgb(138, 40, 40);"></div>
+              <div class="pcr-palette" tabindex="0" aria-label="color selection area" role="listbox" style="background: linear-gradient(to top, rgb(0, 0, 0), transparent), linear-gradient(to left, rgb(255, 0, 0), rgb(255, 255, 255));"></div>
+            </div>
+
+            <div class="pcr-color-chooser">
+              <div class="pcr-picker" style="top: calc(0% - 9px); background-color: rgb(255, 0, 0);"></div>
+              <div class="pcr-hue pcr-slider" tabindex="0" aria-label="hue selection slider" role="slider"></div>
+            </div>
+
+            <div class="pcr-color-opacity">
+              <div class="pcr-picker" style="top: calc(100% - 9px); background: rgb(0, 0, 0);"></div>
+              <div class="pcr-opacity pcr-slider" tabindex="0" aria-label="opacity selection slider" role="slider"></div>
+            </div>
+          </div>
+
+          <div class="pcr-swatches "><button type="button" style="color: rgba(244, 67, 54, 1)" aria-label="color swatch"></button><button type="button" style="color: rgba(233, 30, 99, 1)" aria-label="color swatch"></button><button type="button" style="color: rgba(156, 39, 176, 1)" aria-label="color swatch"></button><button type="button" style="color: rgba(103, 58, 183, 1)" aria-label="color swatch"></button><button type="button" style="color: rgba(63, 81, 181, 1)" aria-label="color swatch"></button><button type="button" style="color: rgba(33, 150, 243, 1)" aria-label="color swatch"></button><button type="button" style="color: rgba(3, 169, 244, 1)" aria-label="color swatch"></button><button type="button" style="color: rgba(0, 188, 212, 1)" aria-label="color swatch"></button><button type="button" style="color: rgba(0, 150, 136, 1)" aria-label="color swatch"></button><button type="button" style="color: rgba(76, 175, 80, 1)" aria-label="color swatch"></button><button type="button" style="color: rgba(139, 195, 74, 1)" aria-label="color swatch"></button><button type="button" style="color: rgba(205, 220, 57, 1)" aria-label="color swatch"></button><button type="button" style="color: rgba(255, 235, 59, 1)" aria-label="color swatch"></button><button type="button" style="color: rgba(255, 193, 7, 1)" aria-label="color swatch"></button></div> 
+
+          <div class="pcr-interaction">
+            <input class="pcr-result" type="text" spellcheck="false">
+
+            <input class="pcr-type" data-type="HEXA" value="HEXA" type="button">
+            <input class="pcr-type active" data-type="RGBA" value="RGBA" type="button">
+            <input class="pcr-type" data-type="HSLA" value="HSLA" type="button">
+            <input class="pcr-type" data-type="HSVA" value="HSVA" type="button" style="display:none" hidden="">
+            <input class="pcr-type" data-type="CMYK" value="CMYK" type="button" style="display:none" hidden="">
+
+            <input class="pcr-save" value="Save" type="button" aria-label="save and exit">
+            <input class="pcr-cancel" value="Cancel" type="button" style="display:none" hidden="" aria-label="cancel and exit">
+            <input class="pcr-clear" value="Clear" type="button" style="display:none" hidden="" aria-label="clear and exit">
+          </div>
+        </div><div class="pcr-app" data-theme="classic" aria-label="color picker dialog" role="form" style="left: 178.781px; top: 87.3281px;">
+          <div class="pcr-selection">
+            <div class="pcr-color-preview">
+              <button type="button" class="pcr-last-color" aria-label="use previous color" style="color: rgb(255, 255, 255);"></button>
+              <div class="pcr-current-color" style="color: rgb(255, 255, 255);"></div>
+            </div>
+
+            <div class="pcr-color-palette">
+              <div class="pcr-picker" style="left: calc(0% - 9px); top: calc(0% - 9px); background: rgb(255, 255, 255);"></div>
+              <div class="pcr-palette" tabindex="0" aria-label="color selection area" role="listbox" style="background: linear-gradient(to top, rgb(0, 0, 0), transparent), linear-gradient(to left, rgb(255, 0, 0), rgb(255, 255, 255));"></div>
+            </div>
+
+            <div class="pcr-color-chooser">
+              <div class="pcr-picker" style="top: calc(0% - 9px); background-color: rgb(255, 0, 0);"></div>
+              <div class="pcr-hue pcr-slider" tabindex="0" aria-label="hue selection slider" role="slider"></div>
+            </div>
+
+            <div class="pcr-color-opacity">
+              <div class="pcr-picker" style="top: calc(100% - 9px); background: rgb(0, 0, 0);"></div>
+              <div class="pcr-opacity pcr-slider" tabindex="0" aria-label="opacity selection slider" role="slider"></div>
+            </div>
+          </div>
+
+          <div class="pcr-swatches "><button type="button" style="color: rgba(244, 67, 54, 1)" aria-label="color swatch"></button><button type="button" style="color: rgba(233, 30, 99, 1)" aria-label="color swatch"></button><button type="button" style="color: rgba(156, 39, 176, 1)" aria-label="color swatch"></button><button type="button" style="color: rgba(103, 58, 183, 1)" aria-label="color swatch"></button><button type="button" style="color: rgba(63, 81, 181, 1)" aria-label="color swatch"></button><button type="button" style="color: rgba(33, 150, 243, 1)" aria-label="color swatch"></button><button type="button" style="color: rgba(3, 169, 244, 1)" aria-label="color swatch"></button><button type="button" style="color: rgba(0, 188, 212, 1)" aria-label="color swatch"></button><button type="button" style="color: rgba(0, 150, 136, 1)" aria-label="color swatch"></button><button type="button" style="color: rgba(76, 175, 80, 1)" aria-label="color swatch"></button><button type="button" style="color: rgba(139, 195, 74, 1)" aria-label="color swatch"></button><button type="button" style="color: rgba(205, 220, 57, 1)" aria-label="color swatch"></button><button type="button" style="color: rgba(255, 235, 59, 1)" aria-label="color swatch"></button><button type="button" style="color: rgba(255, 193, 7, 1)" aria-label="color swatch"></button></div> 
+
+          <div class="pcr-interaction">
+            <input class="pcr-result" type="text" spellcheck="false">
+
+            <input class="pcr-type" data-type="HEXA" value="HEXA" type="button">
+            <input class="pcr-type active" data-type="RGBA" value="RGBA" type="button">
+            <input class="pcr-type" data-type="HSLA" value="HSLA" type="button">
+            <input class="pcr-type" data-type="HSVA" value="HSVA" type="button" style="display:none" hidden="">
+            <input class="pcr-type" data-type="CMYK" value="CMYK" type="button" style="display:none" hidden="">
+
+            <input class="pcr-save" value="Save" type="button" aria-label="save and exit">
+            <input class="pcr-cancel" value="Cancel" type="button" style="display:none" hidden="" aria-label="cancel and exit">
+            <input class="pcr-clear" value="Clear" type="button" style="display:none" hidden="" aria-label="clear and exit">
+          </div>
+        </div></body></html>

@@ -81,7 +81,8 @@
             height: 3em;
         }
 
-        .font-select:focus, #keyboard-select:focus {
+        .font-select:focus,
+        #keyboard-select:focus {
             outline: none;
             border: 1px solid white;
         }
@@ -238,6 +239,30 @@
     var backupFontSize = null;
     var backupMouseTracker = null;
 
+    ipcRenderer.on('settings-reset', () => {
+        //Restart backup variables
+        backupFont = null;
+        backupStrokeWidth = null;
+        backupKeyboard = null;
+        backupFontSize = null;
+        backupMouseTracker = null;
+        //Reset options
+        var fontSizeSlider = document.getElementById('font-size-input');
+        var fontSelect = document.querySelector('.font-select');
+        var keyboardSelect = document.getElementById('keyboard-select');
+        var mouseTrackerSwitch = document.getElementById('mouse-switch');
+        //Reset font size
+        fontSizeSlider.value = localStorage.getItem('fontSize');
+        sliderValueDisplay.innerHTML = localStorage.getItem('fontSize')
+        //Reset font select
+        fontSelect.value = localStorage.getItem('selectedFont');
+        fontSelect.style.fontFamily = localStorage.getItem('selectedFont');
+        //Keyboard select reset
+        keyboardSelect.value = localStorage.getItem('selectedKeyboard');
+        //Reset Mouse tracker
+        mouseTrackerSwitch.checked = localStorage.getItem('mouseTrackerOn') == 'true';
+    })
+
     //The select with system fonts created in font.js appended to wrapper here.
     document.getElementById('font-select-wrapper').appendChild(selectionElement);
     var select = document.querySelector('.font-select');
@@ -288,7 +313,6 @@
 
 
     //Font Size slider
-    backupFontSize = backupFontSize || localStorage.getItem('fontSize');
     var slider = document.getElementById("font-size-input");
     slider.value = localStorage.getItem('fontSize') || 1;
     var sliderValueDisplay = document.getElementById("font-size-value");
@@ -296,6 +320,9 @@
 
     // Update the current slider value (each time you drag the slider handle)
     slider.oninput = function () {
+        if(!backupFontSize) {
+            backupFontSize = localStorage.getItem('fontSize');
+        }
         sliderValueDisplay.innerHTML = this.value;
         localStorage.setItem('fontSize', slider.value);
         ipcRenderer.send('apply-settings');
@@ -325,7 +352,7 @@
     function closeWindowCancel() {
         //Rest storage to backups
         localStorage.setItem('selectedFont', backupFont || localStorage.getItem('selectedFont'));
-        if (backupKeyboard !== null) {
+        if (backupKeyboard !== null || backupMouseTracker !== null) {
             ipcRenderer.send('reload-main');
         }
         localStorage.setItem('selectedKeyboard', backupKeyboard || localStorage.getItem('selectedKeyboard'));

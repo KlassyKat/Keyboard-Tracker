@@ -39,7 +39,7 @@
 
         .control-bar {
             display: grid;
-            grid-template-columns: auto 1fr 40px 40px;
+            grid-template-columns: auto 1fr 40px 40px 40px;
             background-color: rgb(37, 37, 37);
             -webkit-app-region: drag;
         }
@@ -109,24 +109,27 @@
             border: 2px inset black;
         }
 
-        .maximize-window {
+        .minimize-window {
             grid-column: 3;
+            stroke: white !important;
             width: 40px;
             -webkit-app-region: no-drag;
         }
 
-        .close-window {
+        .maximize-window {
             grid-column: 4;
             width: 40px;
             -webkit-app-region: no-drag;
         }
 
-        .close-window:hover {
-            background-color: rgb(8, 8, 8);
+        .close-window {
+            grid-column: 5;
+            width: 40px;
+            -webkit-app-region: no-drag;
         }
 
-        .maximize-window:hover {
-            background-color: rgb(8, 8, 8);
+        .control-bar > span:hover {
+            background-color: #080808;
         }
 
         .background-color-wrapper {
@@ -241,6 +244,18 @@
 <body onload="getStoredColors()" onresize="mouseSize()">
     <nav class="control-bar">
         <h2>Keyboard<span>Tracker</span></h2>
+        <span onclick="minimizeWindow()" class="minimize-window">
+            <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" stroke-linejoin="miter"
+                stroke-miterlimit="2" stroke-linecap="butt">
+                <path d="
+                m 20 75
+                h 160
+                v 20
+                h -160
+                v -20
+                z" fill="white" stroke="white"/>
+            </svg>
+        </span>
         <span onclick="maximizeWindow()" class="maximize-window">
             <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" stroke-linejoin="miter"
                 stroke-miterlimit="2" stroke-linecap="butt">
@@ -448,6 +463,10 @@
 
     function maximizeWindow() {
         ipcRenderer.send('maximize-main-window');
+    }
+
+    function minimizeWindow() {
+        ipcRenderer.send('minimize-main-window');
     }
 
     //Color Picking  Done with https://www.npmjs.com/package/@simonwep/pickr/v/1.5.1
@@ -708,6 +727,7 @@
         loadFont();
         //Size mouse: from mouseSize.js
         mouseSize();
+        // ipcRenderer.send('cast-tracker');
     };
 
     //JS obsessive mouse sizing

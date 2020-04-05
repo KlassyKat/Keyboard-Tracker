@@ -10,7 +10,7 @@
 * ~~Create keyboard selector~~
 * ~~Create full keyboard layout~~
 * ~~Create FPS keyboard layout~~
-* Create MOBA keyboard layout
+* ~~Create MOBA keyboard layout~~
 * ~~Create a mode to only display when shortcuts are used~~
 * ~~Default window full screen 2nd monitor~~
 * ~~Add window position save https://www.npmjs.com/package/electron-window-state~~
@@ -18,8 +18,12 @@
 * Choose keys
 * ~~Mouse SVG cleanup~~
 * ~~Mouse Tracker toggle~~
-* Make default window state maximized in 2nd monitor
-* make setting page just hide and show instead of close
+* Make default window state maximized in 2nd monitor :4
+* ~~make setting page just hide and show instead of close~~
+* ~~Revise shorcut mode for better mouse proportions~~
+* ~~Add cutoff the shortcut mode~~
+* Add send to back button
+* PLEASE GOD GIVE UP ON THE BROWSER SOURCE THING
 * Figure why it doesn't work in fps
   * Remnant worked (unreal)
   * RoR2 no movement (unity)
