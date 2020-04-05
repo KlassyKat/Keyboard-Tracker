@@ -120,21 +120,11 @@
         connect: function(e) {
             gamepad.gamepads.push(e.gamepad.id);
             console.log(e);
-            console.log(gamepad.gamepads);
-            gamepad.startTrack();
-            updater = function() {
-                setInterval((e) => {
-                    gamepad.update(e)
-                }, 30)
-            }
         },
         startTrack: function() {
             updater = setInterval(gamepad.update, 30);
         },
-        update: function(e) {
-            buttons = e.gamepad.buttons;
-            console.log(buttons[0]);
-        }
+        update: function() {}
     }
 
     window.addEventListener('click', () => {

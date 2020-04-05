@@ -1,6 +1,6 @@
 {
   "name": "keyboard-tracker",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "keyboard tracker for stream / video overlays",
   "main": "main.js",
   "repository": {
@@ -18,7 +18,6 @@
     "win": {
       "target": "nsis",
       "icon": "./buildResources/iconv2.ico",
-      "oneClick": false,
       "publish": "github"
     }
   },

@@ -18,6 +18,8 @@
 * Choose keys
 * ~~Mouse SVG cleanup~~
 * ~~Mouse Tracker toggle~~
+* Make default window state maximized in 2nd monitor
+* make setting page just hide and show instead of close
 * Figure why it doesn't work in fps
   * Remnant worked (unreal)
   * RoR2 no movement (unity)
