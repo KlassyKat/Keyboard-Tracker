@@ -1,6 +1,7 @@
 const electron = require('electron');
 const url = require('url');
 const path = require('path');
+const localServer = require('./server');
 const windowStateKeeper = require('electron-window-state');
 // const mousePos = require('mouse-position');
 const {
@@ -12,7 +13,8 @@ const {
 } = electron;
 let mainWindow;
 let settingsWindow;
-let mainWindowState
+let keySelectWindow;
+let mainWindowState;
 let maximized;
 //Disable hardware acceleration to allow for capture in obs
 app.disableHardwareAcceleration();
@@ -27,7 +29,8 @@ app.on('ready', function () {
     mainWindow = new BrowserWindow({
         webPreferences: {
             nodeIntegration: true,
-            webSecurity: false
+            webSecurity: false,
+            backgroundThrottling: false
         },
         x: mainWindowState.x,
         y: mainWindowState.y,
@@ -46,6 +49,8 @@ app.on('ready', function () {
     mainWindow.on('closed', function () {
         app.quit();
     });
+
+    // mainWindow.webContents.setBackgroundThrottling();
 
     //Build menu from template
     const mainMenu = Menu.buildFromTemplate(mainMenuTemplate);
@@ -85,8 +90,40 @@ app.on('ready', function () {
     settingsWindow.on('closed', function () {
         settingsWindow = null;
     });
+
+    app.server = localServer.createServer(app);
 });
 
+app.respondToClient = (req) => {
+    return '?'
+}
+
+ipcMain.on('open-key-window', () => {
+    keySelectWindow = new BrowserWindow({
+        webPreferences: {
+            nodeIntegration: true
+        },
+        frame: false,
+        width: 1400,
+        height: 900,
+        resizable: false,
+        show: false,
+        backgroundColor: '#808080',
+        parent: mainWindow,
+        modal: true
+    });
+    keySelectWindow.loadFile(`${__dirname}/keySelect.html`);
+    keySelectWindow.on('ready-to-show', () => {
+        keySelectWindow.show();
+    })
+    keySelectWindow.on('closed', () => {
+        keySelectWindow = null;
+    })
+})
+
+
+
+//!
 //Create menu
 const mainMenuTemplate = [{
     label: 'File',
@@ -120,6 +157,10 @@ if (process.env.NODE_ENV !== 'production') {
         ]
     })
 }
+//!
+
+
+
 
 //Mouse Tracking
 let mouseCounter = true;
@@ -137,7 +178,11 @@ function mouseTracker() {
     });
 }
 
+
+
+
 //Window handeling
+//*Setting Window
 //Open setting window
 ipcMain.on('open-settings', () => {
     settingsWindow.show();
@@ -151,6 +196,7 @@ ipcMain.on('close-setting-window', () => {
 ipcMain.on('apply-settings', () => {
     mainWindow.webContents.send('load-settings');
 });
+//*Main Window
 //Reload tracker when some settings are changed
 ipcMain.on('reload-main', () => {
     mainWindow.reload();
@@ -175,18 +221,7 @@ ipcMain.on('close-main-window', function () {
     mainWindow.close();
 });
 
-// var trackerCasting;
-
-
-// ipcMain.on('cast-tracker', () => {
-//     clearInterval(trackerCasting);
-//     setInterval(castTracker, 30);
-// })
-
-// async function castTracker() {
-//     mainWindow.webContents.savePage(`${__dirname}/test.html`, 'HTMLComplete').then(() => {
-//         console.log('Page was saved successfully.')
-//     }).catch(err => {
-//         console.log(err)
-//     })
-// }
+//*Key select window
+ipcMain.on('close-key-select-window', () => {
+    keySelectWindow.close();
+});

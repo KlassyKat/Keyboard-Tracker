@@ -21,3 +21,4 @@ if (trigger) {
             console.log(err);
         })
 }
+loadFontFamily();

@@ -1,6 +1,6 @@
 {
   "name": "keyboard-tracker",
-  "version": "1.0.2",
+  "version": "0.3.2",
   "description": "keyboard tracker for stream / video overlays",
   "main": "main.js",
   "repository": {
@@ -26,6 +26,7 @@
   "dependencies": {
     "@simonwep/pickr": "^1.5.1",
     "electron-window-state": "^5.0.3",
+    "express": "^4.17.1",
     "font-list": "^1.2.6",
     "iohook": "^0.6.5",
     "mouse-position": "^2.1.0",

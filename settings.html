@@ -82,7 +82,8 @@
         }
 
         .font-select:focus,
-        #keyboard-select:focus {
+        #keyboard-select:focus,
+        #my-keyboards-select:focus {
             outline: none;
             border: 1px solid white;
         }
@@ -104,9 +105,92 @@
             position: relative;
         }
 
+        /* Keyboard Select */
+        .keyboard-select-container {
+            grid-column: 1/4;
+        }
+        .tabs-wrapper {
+            display: flex;
+        }
+
+        .tabs-wrapper>h4 {
+            font-size: 1.1em;
+            font-weight: 600;
+            display: flex;
+            margin: 1px;
+            padding: 5px;
+            background-color: #151515;
+            color: white;
+            border: 1px solid white;
+            border-radius: 5px 5px 0 0;
+            transition: 0.2s ease-in;
+        }
+
+        .tabs-wrapper>h4:hover {
+            background-color: #222222;
+            cursor: pointer;
+        }
+
+        .tab_active {
+            background-color: #252525 !important;
+            border-width: 1px 1px 0 1px !important;
+        }
+
+        #keyboard-presets-wrapper {
+            display: flex;
+            padding: 8px;
+            height: 100px;
+            background-color: #252525;
+            border: 1px solid white;
+            margin-top: -2px;
+            margin-left: 1px;
+        }
+
+        #my-keyboards-wrapper {
+            display: none;
+            flex-direction: column;
+            padding: 8px;
+            height: 100px;
+            background-color: #252525;
+            border: 1px solid white;
+            margin-top: -2px;
+            margin-left: 1px;
+        }
+
+        #my-keyboards-select {
+            width: 100%;
+            line-height: 2em;
+            height: 2em;
+            padding: 3px;
+            border: 1px solid black;
+            display: inline-block;
+            grid-column: 1/4;
+            font-weight: 600;
+        }
+
+        .add-btn {
+            background-color: #05c56f;
+            border: none;
+            height: 40px;
+            width: 45%;
+            border-radius: 10px;
+            color: white;
+            font-size: 1em;
+            font-weight: 600;
+            margin-top: 30px;
+            transition: 0.2s ease-in;
+            line-height: 40px;
+        }
+
+        .add-btn:hover {
+            background-color: hsl(153, 95%, 30%);
+            transform: scale(1.01)
+        }
+
         #keyboard-select {
             width: 100%;
             line-height: 2em;
+            height: 2em;
             padding: 3px;
             border: 1px solid black;
             display: inline-block;
@@ -208,14 +292,27 @@
             <div id="font-select-wrapper" onclick="loadFontFamily()">
                 <!-- select gets added here with js -->
             </div>
-            <select name="keyboard-select" id="keyboard-select">
-                <option value="fullKeyboard">Full Keyboard</option>
-                <option value="shortcutOnly">Shortcut Mode</option>
-                <option value="fps">FPS</option>
-                <option value="moba">MOBA</option>
-                <option value="" disabled>Customs</option>
-                <option value="floodzCustom">Floodz Custom</option>
-            </select>
+            <!-- Keyboard tabs -->
+            <div class="keyboard-select-container">
+                <div class="tabs-wrapper">
+                    <h4 onclick="activeTab('presets')" id="presets-tab" class="keyboard-tab tab_active">Presets</h4>
+                    <h4 onclick="activeTab('mykeyboards')" id="mykeyboards-tab"  class="keyboard-tab">My Keybaords</h4>
+                </div>
+                <div id="keyboard-presets-wrapper">
+                    <select name="keyboard-select" id="keyboard-select">
+                        <option value="fullKeyboard">Full Keyboard</option>
+                        <option value="shortcutOnly">Shortcut Mode</option>
+                        <option value="fps">FPS</option>
+                        <option value="moba">MOBA</option>
+                        <option value="" disabled>Customs</option>
+                        <option value="floodzCustom">Floodz Custom</option>
+                    </select>
+                </div>
+                <div id="my-keyboards-wrapper">
+                    <select name="my-keyboards" id="my-keyboards-select"></select>
+                    <button onclick="newLayout()" class="add-btn">Create New Layout</button>
+                </div>
+            </div>
             <!-- Mouse Tracker Checkbox -->
             <label id="tracker-label">Mouse Tracker:</label>
             <div onclick="toggleTracker()" class="input_wrapper">
@@ -284,6 +381,24 @@
         }
     }
 
+    function activeTab(tab) {
+        let presetsTab = document.getElementById('presets-tab');
+        let presetContent = document.getElementById('keyboard-presets-wrapper');
+        let myKeyboradsTab = document.getElementById('mykeyboards-tab');
+        let myKeyboardsContent = document.getElementById('my-keyboards-wrapper');
+        if(tab == 'presets') {
+            myKeyboradsTab.classList.remove('tab_active');
+            presetsTab.classList.add('tab_active');
+            myKeyboardsContent.style.display = 'none';
+            presetContent.style.display = 'flex';
+        } else if(tab == 'mykeyboards') {
+            presetsTab.classList.remove('tab_active');
+            myKeyboradsTab.classList.add('tab_active');
+            presetContent.style.display = 'none';
+            myKeyboardsContent.style.display = 'flex';
+        }
+    }
+
     for (keyboardOption of document.getElementById('keyboard-select').options) {
         if (keyboardOption.value == localStorage.getItem('selectedKeyboard')) {
             keyboardOption.selected = 'selected';
@@ -320,7 +435,7 @@
 
     // Update the current slider value (each time you drag the slider handle)
     slider.oninput = function () {
-        if(!backupFontSize) {
+        if (!backupFontSize) {
             backupFontSize = localStorage.getItem('fontSize');
         }
         sliderValueDisplay.innerHTML = this.value;
@@ -341,6 +456,11 @@
         checkBox.checked = true;
     } else {
         checkBox.checked = false;
+    }
+
+    //Create new keyboard layout
+    function newLayout() {
+        ipcRenderer.send('open-key-window');
     }
 
     //Close Window
