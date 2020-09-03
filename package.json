@@ -1,12 +1,8 @@
 {
-  "name": "keyboard-tracker",
-  "version": "0.3.2",
+  "name": "keyboard-tracker-2",
+  "version": "1.0.0",
   "description": "keyboard tracker for stream / video overlays",
   "main": "main.js",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/KlassyKat/Keyboard-Tracker.git"
-  },
   "scripts": {
     "start": "electron .",
     "pack": "electron-builder --dir",
@@ -30,11 +26,12 @@
     "font-list": "^1.2.6",
     "iohook": "^0.6.5",
     "mouse-position": "^2.1.0",
-    "node-localstorage": "^2.1.5"
+    "node-localstorage": "^2.1.5",
+    "socket.io": "^2.3.0"
   },
   "devDependencies": {
+    "browser-sync": "^2.26.12",
     "electron": "^8.0.1",
-    "browser-sync": "^2.26.7",
     "node-abi": "^2.15.0"
   },
   "iohook": {

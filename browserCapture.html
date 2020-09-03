@@ -1,0 +1,16 @@
+<body>
+    
+</body>
+<script src="/socket.io/socket.io.js"></script>
+<script>
+    const server = io();
+    server.on('keypress', (data) => {
+        let { keycode } = data;
+        console.log(keycode)
+    })
+
+    server.on('new-keyboard', (data) => {
+        console.log('keyboard')
+        console.log(data)
+    })
+</script>
