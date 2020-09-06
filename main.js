@@ -34,8 +34,8 @@ app.on('ready', () => {
         height: mainWindowState.height,
         minWidth: 500,
         minHeight: 300,
-        // frame: false,
-        backgroundColor: '#212121',
+        frame: false,
+        backgroundColor: '#494949',
         // icon: './buildResources/icon.ico'
     });
 
@@ -50,18 +50,33 @@ app.on('ready', () => {
 
     //Key tracking
     iohook.on('keydown', e => {
-        localServer.keyPress(e.keycode);
+        console.log(e)
+        localServer.keyPress(e.rawcode);
+    })
+    iohook.on('keyup', e => {
+        localServer.keyRelease(e.rawcode);
     })
 
-
-    //Settings Window
 
     // Start Local Server
     app.server = localServer.createServer();
     iohook.start();
 });
 
-ipcMain.on('new-keyboard', () => {
-    let filepath = `${__dirname}/keyboards/fullKeyboard.html`
-    localServer.newKeyboard(filepath);
+
+//KEYBOARD
+// Load new Keyboard
+ipcMain.on('new-keyboard', (e, data) => {
+    // let htmlFile = data;
+    // let cssFile = `${__dirname}/keyboards-old/fullKeyboard.css`
+    localServer.newKeyboard(data);
+});
+
+
+
+
+//SETTINGS
+//Apply Settings
+ipcMain.on('apply-settings', (e, settings) => {
+    localServer.applySettings(settings);
 })

@@ -1,0 +1,428 @@
+@import url(https://fonts.googleapis.com/css?family=Montserrat:100,100italic,200,200italic,300,300italic,regular,italic,500,500italic,600,600italic,700,700italic,800,800italic,900,900italic);
+
+body * {
+    font-family: 'Montserrat', sans-serif;
+}
+
+body {
+    padding: 0;
+    margin: 0;
+    height: 100vh;
+    -webkit-user-select: none;
+    overflow: hidden;
+}
+
+
+
+
+/* HEADER */
+.control-bar {
+    height: 32px;
+    font-size: 19px;
+    padding: 0 0 0 8px;
+    display: grid;
+    grid-template-columns: auto 1fr 32px 32px 32px;
+    background-color: #0d0d0d;
+    -webkit-app-region: drag;
+    align-items: center;
+}
+
+.title {
+    color: white;
+}
+
+svg {
+    padding-right: 7px;
+}
+
+/* control buttons */
+.control-bar>span {
+    padding: 7px;
+    cursor: pointer;
+}
+
+.control-bar>span:hover {
+    background-color: #222;
+}
+
+.minimize-window {
+    grid-column: 3;
+    -webkit-app-region: no-drag;
+    stroke: #707070;
+    stroke-width: 5;
+}
+
+.maximize-window {
+    grid-column: 4;
+    -webkit-app-region: no-drag;
+    stroke: #707070;
+    stroke-width: 5;
+}
+
+.close-window {
+    grid-column: 5;
+    -webkit-app-region: no-drag;
+    stroke: #707070;
+    stroke-width: 5;
+}
+
+
+
+
+/* TOP BANNER */
+.top-banner {
+    display: grid;
+    grid-template-columns: 25% auto 30px 30px;
+    gap: 5px;
+    color: white;
+    padding: 5px;
+    align-items: center;
+}
+
+.open-keyboard-btn {
+    border: 2px solid white;
+    border-radius: 5px;
+    background-color: #131313;
+    color: white;
+    font-size: 1.1em;
+    font-weight: 500;
+    transition: 0.2s
+}
+
+.open-keyboard-btn:hover {
+    cursor: pointer;
+    background-color: #292929;
+}
+
+.open-keyboard-btn:focus {
+    outline: none;
+}
+
+.link-container {
+    background-color: #131313;
+    padding: 12px 6px;
+    border-radius: 5px;
+}
+
+.bc-link {
+    background-color: white;
+    color: black;
+    padding: 2px 4px;
+    border-radius: 5px;
+    width: max-content;
+}
+
+.help-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 5px;
+    width: 30px;
+    height: 30px;
+    background-color: #131313;
+    border: none;
+    color: white;
+    transition: 0.2s;
+}
+
+.help-link:hover {
+    cursor: pointer;
+    background-color: #292929;
+}
+
+
+
+
+/* SETTING PANELS */
+.panel-wrapper {
+    display: grid;
+    grid-template-columns: 2fr 3fr;
+    gap: 8px;
+    padding: 8px;
+}
+
+.panel-wrapper > div{
+    display: flex;
+    width: 100%;
+}
+
+.color-panel {
+    background-color: #1d1d1d;
+}
+
+.font-panel {
+    background-color: #1d1d1d;
+}
+
+.keyboard-panel {
+    grid-column: 1/3;
+}
+
+.panel-label {
+    color: white;
+    font-weight: bold;
+    margin: 0;
+    padding: 5px;
+    text-decoration: underline;
+}
+
+
+
+
+/* COLOR PANEL */
+.panel-wrapper > div{
+    display: flex;
+    flex-direction: column;
+    border-radius: 8px;
+}
+
+.pick-group {
+    display: grid;
+    width: 100%;
+    grid-template-columns: 1fr 1fr;
+    padding: 5px;
+}
+
+.color-label {
+    font-size: 1.1em;
+    color: white;
+    font-weight: 600;
+}
+
+/* Pickr css override */
+.pcr-app {
+    background: #222;
+}
+
+
+
+
+/* FONT PANEL */
+/* Font selectror */
+select {
+    border-radius: 5px;
+    color: white;
+    background-color: #151515;
+    cursor: pointer;
+    margin: 0 5px;
+}
+
+.font-select {
+    height: 3em;
+}
+
+.font-select:focus,
+#keyboard-select:focus,
+#my-keyboards-select:focus {
+    outline: none;
+    border: 1px solid white;
+}
+
+#font-select-wrapper {
+    width: 97%;
+    grid-column: 1/4;
+}
+
+.font-select {
+    width: 100%;
+    line-height: 2em;
+    padding: 3px;
+    border: 1px solid black;
+    display: inline-block;
+}
+
+.font-select>option {
+    position: relative;
+}
+
+/* Size Selector */
+.size-slider-wrapper {
+    margin: 18px 0 0 5px;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 2px;
+    align-items: center;
+    justify-content: center;
+}
+
+label.font-label {
+    color: white;
+}
+
+.slider {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 15px;
+    border-radius: 5px;
+    background: #3B3B3B;
+    outline: none;
+    opacity: 0.7;
+    -webkit-transition: .2s;
+    transition: opacity .2s;
+}
+
+.slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    background: black;
+    cursor: pointer;
+}
+
+#font-size-value {
+    padding: 2px;
+    margin: 2px;
+    width: 35px;
+    background-color: #3B3B3B;
+    text-align: center;
+    border-radius: 5px;
+}
+
+
+
+
+/* KEYBOARD PANEL */
+.keyboard-select-container {
+    grid-column: 1/4;
+}
+
+.tabs-wrapper {
+    display: flex;
+}
+
+.tabs-wrapper>h4 {
+    font-size: 1.1em;
+    font-weight: 600;
+    display: flex;
+    margin: 1px;
+    padding: 5px;
+    background-color: #151515;
+    color: white;
+    border: 1px solid white;
+    border-radius: 5px 5px 0 0;
+    transition: 0.2s ease-in;
+}
+
+.tabs-wrapper>h4:hover {
+    background-color: #222222;
+    cursor: pointer;
+}
+
+.tab_active {
+    background-color: #1d1d1d !important;
+    border-width: 1px 1px 0 1px !important;
+}
+
+#keyboard-presets-wrapper {
+    display: flex;
+    padding: 8px;
+    height: 150px;
+    background-color: #1d1d1d;
+    border: 1px solid white;
+    margin-top: -2px;
+    margin-left: 1px;
+}
+
+#my-keyboards-wrapper {
+    display: none;
+    flex-direction: column;
+    padding: 8px;
+    height: 150px;
+    background-color: #1d1d1d;
+    border: 1px solid white;
+    margin-top: -2px;
+    margin-left: 1px;
+}
+
+#my-keyboards-select {
+    width: 100%;
+    line-height: 2em;
+    height: 2em;
+    padding: 3px;
+    border: 1px solid black;
+    display: inline-block;
+    grid-column: 1/4;
+    font-weight: 600;
+}
+
+.add-btn-wrapper {
+    display: flex;
+    align-items: flex-end;
+    height: 80px;
+    justify-content: space-around;
+}
+
+.add-btn {
+    background-color: #05c56f;
+    border: none;
+    height: 40px;
+    width: 45%;
+    border-radius: 10px;
+    color: white;
+    font-size: 11pt;
+    font-weight: 600;
+    transition: 0.2s ease-in;
+    line-height: 40px;
+}
+
+.add-btn:hover {
+    background-color: hsl(153, 95%, 30%);
+    transform: scale(1.01)
+}
+
+.import-wrapper {
+    display: flex;
+    width: 45%;
+    height: 40px;
+}
+
+#add-keyboard {
+    width: 100%;
+    outline: none;
+}
+
+#add-keyboard::-webkit-file-upload-button {
+    visibility: hidden;
+}
+
+#add-keyboard::before {
+    content: 'Import Keyboard';
+    display: inline-block;
+    background: #05c56f;    
+    border-radius: 10px;
+    color: white;
+    outline: none;
+    white-space: nowrap;
+    -webkit-user-select: none;
+    cursor: pointer;
+    font-weight: 600;
+    text-align: center;
+    height: 40px;
+    line-height: 40px;
+    font-size: 11pt;
+    width: 100%;
+    transition: 0.2s;
+    
+}
+
+#add-keyboard:hover::before {
+    background-color: hsl(153, 95%, 30%);
+    transform: scale(1.01)
+}
+
+#keyboard-select {
+    width: 100%;
+    line-height: 2em;
+    height: 2em;
+    padding: 3px;
+    border: 1px solid black;
+    display: inline-block;
+    grid-column: 1/4;
+    font-weight: 600;
+}
+
+#keyboard-select>option {
+    font-weight: 600;
+}

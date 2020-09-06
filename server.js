@@ -17,11 +17,22 @@ exports.keyPress = (key) => {
     console.log(key);
     io.emit('keypress', {keycode: key});
 }
+exports.keyRelease = (key) => {
+    console.log(key);
+    io.emit('keyrelease', {keycode: key});
+}
 
-exports.newKeyboard = (filepath) => {
-    console.log(filepath)
-    fs.readFile(filepath, (error, filedata) => {
+exports.newKeyboard = (htmlFile) => {
+    fs.readFile(htmlFile, (error, filedata) => {
         if(error) throw error;
         else io.emit("new-keyboard", filedata.toString());
     });
+}
+
+exports.applySettings = (settings) => {
+    try {
+        io.emit('settings', settings);
+    } catch(err) {
+        console.log(err);
+    }
 }

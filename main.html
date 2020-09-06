@@ -1,10 +1,402 @@
+<head>
+    <link rel="stylesheet" href="pickr.css">
+    <link rel="stylesheet" href="main.css">
+    <script src="fonts.js"></script>
+    <script src="processKeyboard.js"></script>
+    <!-- <script src="pickr.js"></script> -->
+    <title>Keyboard Tracker</title>
+</head>
+
 <body>
-    <button onclick="newKeyboard()">Title</button>
+    <nav class="control-bar">
+        <strong class="title">Keyboard Tracker</strong>
+        <span onclick="minimizeWindow()" class="minimize-window">
+            <svg viewBox="0 0 32 32">
+                <line x1="0" y1="17" x2="32" y2="17" />
+            </svg>
+        </span>
+        <span onclick="maximizeWindow()" class="maximize-window">
+            <svg viewBox="0 0 32 32">
+                <line x1="0" y1="4" x2="32" y2="4" style="stroke-width: 8"></line>
+                <line x1="0" y1="28" x2="32" y2="28"></line>
+                <line x1="0" y1="28" x2="0" y2="4"></line>
+                <line x1="32" y1="28" x2="32" y2="4"></line>
+            </svg>
+        </span>
+        <span onclick="closeWindow()" class="close-window">
+            <svg viewBox="0 0 32 32">
+                <line x1="2" y1="2" x2="30" y2="30" />
+                <line x1="2" y1="30" x2="30" y2="2" />
+            </svg>
+        </span>
+    </nav>
+    <div class="content-wrapper">
+        <!-- Top banner -->
+        <div class="top-banner">
+            <button class="open-keyboard-btn" onclick="newKeyboard()">View Keyboard</button>
+            <div class="link-container">
+                <span class="link-label">Browser Capture:</span>
+                <span class="bc-link">localhost:3000</span>
+            </div>
+            <span class="help-link">?</span>
+            <span class="help-link">&#10084</span>
+        </div>
+        <!-- Setting Panels -->
+        <div class="panel-wrapper">
+            <!-- Color Panel -->
+            <div class="color-panel">
+                <h2 class="panel-label">Colors:</h2>
+                <div class="pick-group">
+                    <span class="color-label">Stroke:</span>
+                    <div class="stroke-color-picker color-picker"></div>
+                </div>
+                <div class="pick-group">
+                    <span class="color-label">Fill:</span>
+                    <div class="fill-color-picker color-picker"></div>
+                </div>
+                <div class="pick-group">
+                    <span class="color-label">Font:</span>
+                    <div class="font-color-picker color-picker"></div>
+                </div>
+            </div>
+            <!-- Font Panel -->
+            <div class="font-panel">
+                <h2 class="panel-label">Font:</h2>
+                <div id="font-select-wrapper" onclick="loadFontFamily()">
+                    <!-- inserted with js -->
+                </div>
+                <div class="size-slider-wrapper">
+                    <label for="font-size-input" class="font-label">Size:</label>
+                    <input class="slider" type="range" name="font-size-input" id="font-size-input" step="0.1" min="0.3"
+                        max="5">
+                    <span id="font-size-value"></span>
+                </div>
+            </div>
+            <!-- Keyboard Panel -->
+            <div class="keyboard-panel">
+                <div class="keyboard-select-container">
+                    <div class="tabs-wrapper">
+                        <h4 onclick="activeTab('presets')" id="presets-tab" class="keyboard-tab tab_active">Presets</h4>
+                        <h4 onclick="activeTab('mykeyboards')" id="mykeyboards-tab"  class="keyboard-tab">My Keybaords</h4>
+                    </div>
+                    <div id="keyboard-presets-wrapper">
+                        <select name="keyboard-select" id="keyboard-select">
+                            <option value="fullKeyboard">Full Keyboard</option>
+                            <option value="shortcutOnly">Shortcut Mode</option>
+                            <option value="fps">FPS</option>
+                            <option value="moba">MOBA</option>
+                            <option value="" disabled>Customs</option>
+                            <option value="floodzCustom">Floodz Custom</option>
+                        </select>
+                    </div>
+                    <div id="my-keyboards-wrapper">
+                        <select name="my-keyboards" id="my-keyboards-select"></select>
+                        <div class="add-btn-wrapper">
+                            <button onclick="newLayout()" class="add-btn">Create New Layout</button>
+                            <!-- <button onclick="importKeyboard()" class="add-btn">Import Keyboard</button> -->
+                            <span class="import-wrapper">
+                                <input type="file" id="add-keyboard" accept="image/svg+xml" onchange="importKeyboard(this)">
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
+
+
+
+
 <script>
-    const { ipcRenderer } = require('electron');
-    function newKeyboard() {
-        console.log('In window')
-        ipcRenderer.send('new-keyboard');
+    const {
+        ipcRenderer,
+        dialog
+    } = require('electron');
+    const fs = require('fs');
+
+    const Pickr = require('@simonwep/pickr')
+
+    function newKeyboard(path) {
+        ipcRenderer.send('new-keyboard', path);
+    }
+
+    //Load defaults
+    let fontSizeDefault = localStorage.getItem('fontSize') || 1;
+    localStorage.setItem('fontSize', fontSizeDefault);
+    let selectedFontDefault = localStorage.getItem('selectedFont') || 'Montserrat';
+    localStorage.setItem('selectedFont', selectedFontDefault);
+    let strokeColorDefault = localStorage.getItem('strokeColor') || 'rgba(255, 255, 255, 1)';
+    localStorage.setItem('strokeColor', strokeColorDefault);
+    let fillColorDefault = localStorage.getItem('fillColor') || 'rgba(0, 0, 0, 1)';
+    localStorage.setItem('fillColor', fillColorDefault);
+    let fontColorDefault = localStorage.getItem('fontColor') || 'rgba(255, 255, 255, 1)';
+    localStorage.setItem('fontColor', fontColorDefault);
+
+
+
+
+    // FONTS
+    //The select with system fonts created in font.js appended to wrapper here.
+    document.getElementById('font-select-wrapper').appendChild(selectionElement);
+    var select = document.querySelector('.font-select');
+    //Load fonts incrementally. Note: tries to load all at once in for loop and freezes
+    let i = 0;
+    let loadFontsGracefully;
+
+    function loadFontFamily() {
+        loadFontsGracefully = setInterval(loadFont, 0);
+    }
+    console.log(selectionElement.options);
+
+    function loadFont() {
+        if (i < selectionElement.options.length) {
+            selectionElement[i].style.fontFamily = selectionElement[i].innerHTML;
+            i++;
+        } else {
+            clearInterval(loadFontsGracefully);
+        }
+    }
+
+    //Register font when picked
+    select.addEventListener('change', (e) => {
+        let selectedFont = e.target.selectedOptions[0].value;
+        select.style.fontFamily = selectedFont;
+        localStorage.setItem('selectedFont', selectedFont);
+        console.log(selectedFont);
+        console.log(e.target.selectedOptions[0].attributes);
+        applySettings();
+    });
+
+    //Font Size slider
+    var slider = document.getElementById("font-size-input");
+    slider.value = localStorage.getItem('fontSize') || 1;
+    var sliderValueDisplay = document.getElementById("font-size-value");
+    sliderValueDisplay.innerHTML = slider.value; // Display the default slider value
+
+    // Update the current slider value (each time you drag the slider handle)
+    slider.oninput = function () {
+        sliderValueDisplay.innerHTML = this.value;
+        localStorage.setItem('fontSize', slider.value);
+        applySettings();
+    }
+
+
+
+
+    //KEYBOARD
+    function activeTab(tab) {
+        let presetsTab = document.getElementById('presets-tab');
+        let presetContent = document.getElementById('keyboard-presets-wrapper');
+        let myKeyboradsTab = document.getElementById('mykeyboards-tab');
+        let myKeyboardsContent = document.getElementById('my-keyboards-wrapper');
+        if(tab == 'presets') {
+            myKeyboradsTab.classList.remove('tab_active');
+            presetsTab.classList.add('tab_active');
+            myKeyboardsContent.style.display = 'none';
+            presetContent.style.display = 'flex';
+        } else if(tab == 'mykeyboards') {
+            presetsTab.classList.remove('tab_active');
+            myKeyboradsTab.classList.add('tab_active');
+            presetContent.style.display = 'none';
+            myKeyboardsContent.style.display = 'flex';
+        }
+    }
+
+    function importKeyboard(data) {
+        localStorage.setItem('newKeyboard', data.files[0].name.slice(0, -4))
+        fs.readFile(data.files[0].path, (err, fileData) => {
+            if (err) {
+                throw err
+            } 
+            else {
+                let configKeyboard = processKeyboard(fileData.toString());
+                localStorage.setItem('configuringKeyboard', configKeyboard);
+                processKeyboard(configKeyboard);
+            } 
+        })
+    }
+    loadCustomKeyboards()
+    function loadCustomKeyboards() {
+        let selectEl = document.getElementById('my-keyboards-select');
+        fs.readdir(`${__dirname}/custom-keyboards`, (err, files) => {
+            if(err) {
+                console.log(err)
+            } else {
+                selectEl.innerText = null;
+                for(file of files) {
+                    let keyboardOption = new Option(file.slice(0, -4), `${__dirname}/custom-keyboards/${file}`);
+                    selectEl.options[selectEl.options.length] = keyboardOption;
+                    console.log(file)
+                }
+            }
+        })
+        
+        
+    }
+
+    let customKeyboardSelect = document.getElementById("my-keyboards-select");
+    customKeyboardSelect.addEventListener('change', (e) => {
+        let selectedKeyboard = e.target.selectedOptions[0].value;
+        newKeyboard(selectedKeyboard);
+    })
+
+
+
+    
+    //COLORS
+    //Stroke
+    const strokePicker = Pickr.create({
+        el: '.stroke-color-picker',
+        theme: 'nano', // or 'monolith', or 'nano'
+        position: 'left-end',
+        default: localStorage.getItem('strokeColor') || 'rgba(255,255,255,1)',
+        swatches: [
+            'rgba(244, 67, 54, 1)',
+            'rgba(233, 30, 99, 1)',
+            'rgba(156, 39, 176, 1)',
+            'rgba(103, 58, 183, 1)',
+            'rgba(63, 81, 181, 1)',
+            'rgba(33, 150, 243, 1)',
+            'rgba(3, 169, 244, 1)',
+            'rgba(0, 188, 212, 1)',
+            'rgba(0, 150, 136, 1)',
+            'rgba(76, 175, 80, 1)',
+            'rgba(139, 195, 74, 1)',
+            'rgba(205, 220, 57, 1)',
+            'rgba(255, 235, 59, 1)',
+            'rgba(255, 193, 7, 1)'
+        ],
+
+        components: {
+
+            // Main components
+            preview: true,
+            opacity: true,
+            hue: true,
+
+            // Input / output Options
+            interaction: {
+                hex: true,
+                rgba: true,
+                hsla: true,
+                hsva: false,
+                cmyk: false,
+                input: true,
+                clear: false,
+                save: true
+            }
+        }
+    });
+    strokePicker.on('save', (color) => {
+        localStorage.setItem('strokeColor', color.toRGBA().toString());
+        applySettings();
+    })
+    //Fill
+    const fillPicker = Pickr.create({
+        el: '.fill-color-picker',
+        container: 'body',
+        position: 'left-middle',
+        theme: 'nano', // or 'monolith', or 'nano'
+        default: localStorage.getItem('fillColor') || 'rgba(0,0,0,1)',
+        swatches: [
+            'rgba(244, 67, 54, 1)',
+            'rgba(233, 30, 99, 1)',
+            'rgba(156, 39, 176, 1)',
+            'rgba(103, 58, 183, 1)',
+            'rgba(63, 81, 181, 1)',
+            'rgba(33, 150, 243, 1)',
+            'rgba(3, 169, 244, 1)',
+            'rgba(0, 188, 212, 1)',
+            'rgba(0, 150, 136, 1)',
+            'rgba(76, 175, 80, 1)',
+            'rgba(139, 195, 74, 1)',
+            'rgba(205, 220, 57, 1)',
+            'rgba(255, 235, 59, 1)',
+            'rgba(255, 193, 7, 1)'
+        ],
+
+        components: {
+
+            // Main components
+            preview: true,
+            opacity: true,
+            hue: true,
+
+            // Input / output Options
+            interaction: {
+                hex: true,
+                rgba: true,
+                hsla: true,
+                hsva: false,
+                cmyk: false,
+                input: true,
+                clear: false,
+                save: true
+            }
+        }
+    });
+    fillPicker.on('save', (color) => {
+        localStorage.setItem('fillColor', color.toRGBA().toString());
+        applySettings();
+    })
+    //Font
+    const fontPicker = Pickr.create({
+        el: '.font-color-picker',
+        theme: 'nano', // or 'monolith', or 'nano'
+        position: 'left-middle',
+        default: localStorage.getItem('fontColor') || 'rgba(255,255,255,1)',
+        swatches: [
+            'rgba(244, 67, 54, 1)',
+            'rgba(233, 30, 99, 1)',
+            'rgba(156, 39, 176, 1)',
+            'rgba(103, 58, 183, 1)',
+            'rgba(63, 81, 181, 1)',
+            'rgba(33, 150, 243, 1)',
+            'rgba(3, 169, 244, 1)',
+            'rgba(0, 188, 212, 1)',
+            'rgba(0, 150, 136, 1)',
+            'rgba(76, 175, 80, 1)',
+            'rgba(139, 195, 74, 1)',
+            'rgba(205, 220, 57, 1)',
+            'rgba(255, 235, 59, 1)',
+            'rgba(255, 193, 7, 1)'
+        ],
+
+        components: {
+
+            // Main components
+            preview: true,
+            opacity: true,
+            hue: true,
+
+            // Input / output Options
+            interaction: {
+                hex: true,
+                rgba: true,
+                hsla: true,
+                hsva: false,
+                cmyk: false,
+                input: true,
+                clear: false,
+                save: true
+            }
+        }
+    });
+    fontPicker.on('save', (color) => {
+        localStorage.setItem('fontColor', color.toRGBA().toString());
+        applySettings();
+    });
+
+    // Sending Settings
+    function applySettings() {
+        let settings = {};
+        settings.fontSize = localStorage.getItem('fontSize');
+        settings.selectedFont = localStorage.getItem('selectedFont');
+        settings.strokeColor = localStorage.getItem('strokeColor');
+        settings.fillColor = localStorage.getItem('fillColor');
+        settings.fontColor = localStorage.getItem('fontColor');
+        console.log(settings)
+        ipcRenderer.send('apply-settings', settings);
     }
 </script>
