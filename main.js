@@ -51,6 +51,7 @@ app.on('ready', () => {
     //Key tracking
     iohook.on('keydown', e => {
         console.log(e)
+        console.log(String.fromCharCode(e.rawcode))
         localServer.keyPress(e.rawcode);
     })
     iohook.on('keyup', e => {

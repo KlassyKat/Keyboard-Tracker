@@ -81,12 +81,10 @@
                     </div>
                     <div id="keyboard-presets-wrapper">
                         <select name="keyboard-select" id="keyboard-select">
-                            <option value="fullKeyboard">Full Keyboard</option>
+                            <!-- <option value="fullKeyboard">Full Keyboard</option>
                             <option value="shortcutOnly">Shortcut Mode</option>
                             <option value="fps">FPS</option>
-                            <option value="moba">MOBA</option>
-                            <option value="" disabled>Customs</option>
-                            <option value="floodzCustom">Floodz Custom</option>
+                            <option value="moba">MOBA</option> -->
                         </select>
                     </div>
                     <div id="my-keyboards-wrapper">
@@ -205,6 +203,7 @@
 
     function importKeyboard(data) {
         localStorage.setItem('newKeyboard', data.files[0].name.slice(0, -4))
+        console.log(data.files[0].path);
         fs.readFile(data.files[0].path, (err, fileData) => {
             if (err) {
                 throw err
@@ -216,6 +215,8 @@
             } 
         })
     }
+
+
     loadCustomKeyboards()
     function loadCustomKeyboards() {
         let selectEl = document.getElementById('my-keyboards-select');
@@ -231,8 +232,6 @@
                 }
             }
         })
-        
-        
     }
 
     let customKeyboardSelect = document.getElementById("my-keyboards-select");
@@ -241,9 +240,47 @@
         newKeyboard(selectedKeyboard);
     })
 
+    function addNewDefaultKeyboard(path, name) {
+        localStorage.setItem('newKeyboard', name)
+        fs.readFile(path, (err, fileData) => {
+            if (err) {
+                throw err
+            } 
+            else {
+                let configKeyboard = processKeyboard(fileData.toString());
+                processKeyboard(configKeyboard);
+            } 
+        })
+    }
+
+    loadDefaultKeyboards()
+    function loadDefaultKeyboards() {
+        let selectEl = document.getElementById('keyboard-select');
+        fs.readdir(`${__dirname}/default-keyboards`, (err, files) => {
+            if(err) {
+                console.log(err)
+            } else {
+                selectEl.innerText = null;
+                for(file of files) {
+                    let keyboardOption = new Option(file.slice(0, -4), `${__dirname}/default-keyboards/${file}`);
+                    selectEl.options[selectEl.options.length] = keyboardOption;
+                    console.log(file)
+                }
+            }
+        })
+    }
+
+    let defaultKeyboardSelect = document.getElementById("keyboard-select");
+    defaultKeyboardSelect.addEventListener('change', (e) => {
+        let selectedKeyboard = e.target.selectedOptions[0].value;
+        newKeyboard(selectedKeyboard);
+    })
 
 
-    
+
+
+
+
     //COLORS
     //Stroke
     const strokePicker = Pickr.create({

@@ -18,7 +18,6 @@ exports.keyPress = (key) => {
     io.emit('keypress', {keycode: key});
 }
 exports.keyRelease = (key) => {
-    console.log(key);
     io.emit('keyrelease', {keycode: key});
 }
 

@@ -6,12 +6,16 @@
             --font-color: #000;
         }
 
+        .active-el-class {
+            stroke: var(--stroke-color) !important;
+        }
+
         .pressed {
             fill: var(--fill-color) !important;
         }
 
         text {
-            transform: scale(1.7);
+            fill: var(--font-color) !important;
         }
 
     </style>
@@ -43,30 +47,6 @@
         console.log(data)
         appendNewKeyboard(data);
     });
-    let rootStyle = 
-        `:root {
-            --stroke-color: black;
-            --fill-color: aqua;
-            --font-color: black;
-        }
-        .pressed {
-            fill: var(--fill-color);
-        }
-        svg>path {
-            stroke: var(--stroke-color);
-        }
-        svg>circle {
-            stroke: var(--stroke-color);
-        }
-        svg text {
-            fill: var(--font-color);
-        }`;
-    let pageStyle; //Store for other css adaptations
-    server.on('new-style', (data) => {
-        pageStyle = rootStyle + data;
-        console.log(data)
-        addNewStyle(pageStyle);
-    });
 
     server.on('settings', (data) => {
         applyNewSettings(data);
@@ -75,11 +55,6 @@
         }
     });
     
-    function addNewStyle(data) {
-        console.log(data)
-        let styleContainer = document.getElementById('page-head');
-        styleContainer.innerHTML = '<style>' +  data + '</style>';
-    }
     function appendNewKeyboard(keyboard) {
         let container = document.getElementById('keyboard-wrapper');
         container.innerHTML = keyboard;
@@ -107,10 +82,12 @@
     }
     function loadFont(size, font) {
         let textNodes = document.querySelectorAll('text');
-        let newFontSize = 0.8 * size;
+        let newFontSize = size;
         for(node of textNodes) {
             node.style.fontFamily = font;
             node.style.fontSize = size + 'em';
+            node.style.transform = `translateX(${-size/10 + (.1)}em)`
+            node.style.transform = `translateY(${size/10 - (.1)}em)`
         }
     }
     function applyColor(type, color) {
