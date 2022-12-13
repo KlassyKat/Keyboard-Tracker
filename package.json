@@ -22,7 +22,7 @@
   "dependencies": {
     "@simonwep/pickr": "^1.5.1",
     "electron-window-state": "^5.0.3",
-    "express": "^4.17.1",
+    "express": "^4.17.3",
     "font-list": "^1.2.6",
     "iohook": "^0.6.5",
     "mouse-position": "^2.1.0",
